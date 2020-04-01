@@ -8,7 +8,7 @@ Leetcode题解目录
 * [二分查找](https://github.com/liuwentao1992/Note/blob/master/%E4%BA%8C%E5%88%86%E6%B3%95.md)
 * [分治]
 * [搜索]
-* [动态规划]
+* [动态规划](https://github.com/liuwentao1992/Note/blob/master/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92.md)
 * [数学]
 
 数据结构相关
