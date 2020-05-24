@@ -1,6 +1,6 @@
-Leetcode题解目录
+:books:Leetcode题解目录
 ===============
-算法思想
+:pencil2:算法思想
 ==========
 * [双指针](https://github.com/liuwentao1992/Note/blob/master/%E5%8F%8C%E6%8C%87%E9%92%88.md)
 * [排序](https://github.com/liuwentao1992/Note/blob/master/%E6%8E%92%E5%BA%8F.md)
@@ -11,7 +11,7 @@ Leetcode题解目录
 * [动态规划](https://github.com/liuwentao1992/Note/blob/master/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92.md)
 * [数学]
 
-数据结构相关
+:snowflake:数据结构相关
 =============
 * [链表](https://github.com/liuwentao1992/Note/blob/master/%E9%93%BE%E8%A1%A8.md)
 * [树](https://github.com/liuwentao1992/Note/blob/master/%E6%A0%91.md)
