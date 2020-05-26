@@ -2,7 +2,7 @@
 ===============
 :pencil2:算法思想
 ==========
-* [双指针](https://github.com/liuwentao1992/Note/blob/master/%E5%8F%8C%E6%8C%87%E9%92%88.md)
+* [双指针](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E5%8F%8C%E6%8C%87%E9%92%88.md)
 * [排序](https://github.com/liuwentao1992/Note/blob/master/%E6%8E%92%E5%BA%8F.md)
 * [贪心思想](https://github.com/liuwentao1992/LeetCode-note/blob/master/LeetCode/%E8%B4%AA%E5%BF%83%E6%80%9D%E6%83%B3.md)
 * [二分查找](https://github.com/liuwentao1992/Note/blob/master/%E4%BA%8C%E5%88%86%E6%B3%95.md)
