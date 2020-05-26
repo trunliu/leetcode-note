@@ -1,5 +1,7 @@
-:books:Leetcode题解目录
+:books:Leetcode题解目录（持续更新）
 ===============
+* 记录刷过的所有题，涵盖了基本题型，配上精简的解题思路，全是C++版的题解
+
 :pencil2:算法思想
 ==========
 * :pushpin:[双指针](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E5%8F%8C%E6%8C%87%E9%92%88.md)
