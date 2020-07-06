@@ -1,6 +1,6 @@
 :books:Leetcode题解目录（持续更新）
 ===============
-* 为了进大厂🐛，目前进度**97/250**题，特此记录刷过的所有题，涵盖了基本题型，精简的解题思路，此repo属于 ***C++*** 版的题解。
+* 为了进大厂🐛，目前进度**101/250**题，特此记录刷过的所有题，涵盖了基本题型，精简的解题思路，此repo属于 ***C++*** 版的题解。
 * 感谢您的观看，希望对您有帮助，欢迎热烈的交流🎉！如果感觉还不错就点个赞 ***star*** 吧✨✨✨~
 * 这是我的🔥[【github】](https://github.com/liuwentao1992) 里面有适合 ***C++*** 萌新的练手项目，热烈欢迎🎉帮助我收集整理题目或者提供解题思路🐳~。
 
@@ -25,4 +25,4 @@
 * [字符串](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E5%AD%97%E7%AC%A6%E4%B8%B2.md)
 * [数组与矩阵]
 * [图]
-* [位运算]
+* [位运算](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E4%BD%8D%E8%BF%90%E7%AE%97.md)
