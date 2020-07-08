@@ -5,6 +5,7 @@
 * 这是我的🔥[【github】](https://github.com/liuwentao1992) 里面有适合 ***C++*** 萌新的练手项目，热烈欢迎🎉帮助我收集整理题目或者提供解题思路🐳~。
 
 
+* [剑指offer](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E5%89%91%E6%8C%87offer.md)
 🎨算法思想
 ==========
 * [双指针](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E5%8F%8C%E6%8C%87%E9%92%88.md)
