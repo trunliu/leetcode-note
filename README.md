@@ -4,10 +4,6 @@
 * 感谢您的观看，希望对您有帮助，欢迎热烈的交流🎉！如果感觉还不错就点个赞 ***star*** 吧✨✨✨~
 * 这是我的🔥[【github】](https://github.com/liuwentao1992) 里面有适合 ***C++*** 萌新的练手项目，热烈欢迎🎉帮助我收集整理题目或者提供解题思路🐳~。
 
-
- 🚀[剑指offer题解](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E5%89%91%E6%8C%87offer.md)  
-=======================
-
 🎨算法思想
 ==========
 * [双指针](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E5%8F%8C%E6%8C%87%E9%92%88.md)
@@ -29,3 +25,7 @@
 * [数组与矩阵]
 * [图]
 * [位运算](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E4%BD%8D%E8%BF%90%E7%AE%97.md)
+
+
+ 🚀[剑指offer题解](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E5%89%91%E6%8C%87offer.md)  
+=======================
