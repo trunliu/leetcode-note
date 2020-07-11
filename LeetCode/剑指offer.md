@@ -397,3 +397,179 @@ private:
         return dp.back();
     }
 ```
+
+剪绳子II
+==================
+[leetcode](https://leetcode-cn.com/problems/jian-sheng-zi-ii-lcof/)
+给你一根长度为 n 的绳子，请把绳子剪成整数长度的 m 段（m、n都是整数，n>1并且m>1），每段绳子的长度记为 k[0],k[1]...k[m - 1] 。请问 k[0]*k[1]*...*k[m - 1] 可能的最大乘积是多少？例如，当绳子的长度是8时，我们把它剪成长度分别为2、3、3的三段，此时得到的最大乘积是18。
+答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+### 解题思路
+* 本题与上一题得区别在于存在大数操作，`2 <= n <= 1000`
+* 对于本题需要了解数学知识，要想使成绩最大化，就需要将绳子尽可能的多分段，因此每段长度有，1，2，3中长度考虑，1显然不行，2或3中，3更合适，因此此题就变为求3的幂操作。
+* 循环求幂：
+```cpp
+    int cuttingRope(int n) {
+        if (n == 2 || n == 3) return n -1;
+        long res = 1;
+        while (n > 4) {
+            res = res * 3 % 1000000007;
+            n -= 3;
+        }
+        return res * n % 1000000007;
+    }
+```
+
+二进制中1的个数
+====================
+请实现一个函数，输入一个整数，输出该数二进制表示中 1 的个数。例如，把 9 表示成二进制是 1001，有 2 位是 1。因此，如果输入 9，则该函数输出 2。
+### 解题思路
+* 三种方法：1、掩码为1，让数子`(num & 1)` 判断num二进制形式的最后一位是否是1，`num >>= 1`让num二进制数右移一位，就可以实现逐位判断。
+* 2、方法一通过不断右移num，还可以不断左移掩码1来判断
+* 3、 反转num的最后一位，记录反转次数 反转'n &= n -1'
+```cpp
+    int hammingWeight(uint32_t n) {
+        int cnt = 0;
+        while (n) {
+            if (n & 1) cnt++;
+            n >>= 1;
+        }
+        return cnt;
+    }
+```
+
+```cpp
+    int hammingWeight(uint32_t n) {
+        uint32_t mask = 1;
+        int i = 32;
+        int cnt = 0;
+        while (i--) {
+            if (n & mask) cnt++;
+            mask <<= 1;
+        }
+        return cnt;
+    }
+```
+
+```cpp
+    int hammingWeight(uint32_t n) {
+        int cnt = 0;
+        while (n) {
+            n &= n - 1;
+            cnt++;
+        }
+        return cnt;
+    }
+```
+
+数值的整数次方
+==================
+[leetcode](https://leetcode-cn.com/problems/shu-zhi-de-zheng-shu-ci-fang-lcof/)
+实现函数double Power(double base, int exponent)，求base的exponent次方。不得使用库函数，同时不需要考虑大数问题。
+### 解题思路 
+* 如果采用whie(exp--)根据指数个数不断求积的方式计算，对于指数很大的数可能会超时，因此使用快速求幂算法
+* 核心就是通过指数的二进制形式，将指数进行的分解，例如（`x^9` 指数为`9`，二进制是:1001, 那么`9 = 2^3 + 2^0`, 所以`x^9 = x^8 * x^1` )
+```cpp
+    double myPow(double x, int n) {
+        if (n == 0) return 1;
+        bool isPositive = true;
+        long t = n;
+        if (t < 0) t = -t, isPositive = false;
+        double res = 1;
+        while (t) {
+            if (t & 1) res *= x; 
+            x *= x;
+            t >>= 1; 
+        }
+        return isPositive ? res : (1 / res);
+    }
+
+```
+
+* 其中用到了用移位`t >>= 1`,
+* 注意能够使用的前提是`t`不能是负数（因为负数用的是补码），因此之前现做绝对化处理,但是力扣的用例中使用了`n = -2147483648`这个数，int的取值范围是-2147483648到2147483647，但-2147483648取绝对值2147483648超出int范围，所以需要long去接他。
+* 可以用除法 n /= 2来代替，就不会有如上问题,也不同考虑符数问题
+```cpp
+    double myPow(double x, int n) {
+        double res = 1;
+        int t = n;
+        while (n) {
+            if (n & 1) res *= x;
+            x *= x;
+            n /= 2;
+        }
+        return t > 0 ? res : 1 / res;
+    }
+```
+
+打印从1到最大的n位数
+========================
+[leetcode](https://leetcode-cn.com/problems/da-yin-cong-1dao-zui-da-de-nwei-shu-lcof/)
+输入数字 n，按顺序打印出从 1 到最大的 n 位十进制数。比如输入 3，则打印出 1、2、3 一直到最大的 3 位数 999。
+### 示例
+```
+输入: n = 1
+输出: [1,2,3,4,5,6,7,8,9]
+```
+### 解题思路
+* 此题相对书上的做了简化，因为已经给出返回值是int型，所以用例中不会有大数，就简单很多
+* 关键在于找到最大值，然后遍历打印即可
+* 可以用pow(10, n)来确定最大边界。
+* 我这里提供另一种算法：例如3位数，那么最大值就是999，4位数最大9999。
+```cpp
+    vector<int> printNumbers(int n) {
+        int cnt = 0;
+        vector<int> res;
+        while (n--) {   
+            cnt = cnt * 10 + 9;
+        }
+        for (int i = 1; i <= cnt; ++i) {
+            res.push_back(i);
+        }
+        return res;
+    }
+```
+
+删除链表的节点
+====================
+[leetcode](https://leetcode-cn.com/problems/shan-chu-lian-biao-de-jie-dian-lcof/)给定单向链表的头指针和一个要删除的节点的值，定义一个函数删除该节点。
+返回删除后的链表的头节点。
+* 删除某个结点的前提一定是找到他的前驱和要删除的结点，因此需要两个指针。
+* 改变链表的操作，有可能会删除第一个结点，因此需要一个头节点作为第一个结点的前驱，来统一化操作。
+```cpp
+    ListNode* deleteNode(ListNode* head, int val) {
+        ListNode* dummy = new ListNode(-1);
+        dummy->next = head;
+        ListNode* cur = head;
+        ListNode* pre = dummy;
+        while (cur->val != val) {
+            cur = cur->next;
+            pre = pre->next;
+        }
+        pre->next = cur->next;
+        return dummy->next;
+    }
+
+```
+
+调整数组顺序使奇数位于偶数前面
+===============================
+[leetcode](https://leetcode-cn.com/problems/diao-zheng-shu-zu-shun-xu-shi-qi-shu-wei-yu-ou-shu-qian-mian-lcof/)
+输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数位于数组的前半部分，所有偶数位于数组的后半部分。
+### 解题思路
+* 思路来自于快排的挖坑法，定义两个头尾指针，把最后一个数挖走，然后left指针遍历直到发现一个偶数，就把这个偶数挖走放到最后的坑里，再用right往前遍历，直到发现一个奇数，挖走放到前面那个坑里，直到俩个指针相遇，把坑不上即可。
+```cpp
+    vector<int> exchange(vector<int>& nums) {
+        if (nums.size() == 0) return {};
+        int left = 0;
+        int right = nums.size() - 1;
+        int temp = nums[right];
+        while (left < right) {
+            while ((nums[left] & 1) == 1 && left < right) left++;
+            nums[right] = nums[left];
+            while ((nums[right] & 1) == 0 && left < right) right--;
+            nums[left] = nums[right];
+        }
+        nums[left] = temp;
+        return nums;
+    }
+``
