@@ -18,6 +18,12 @@
 * [16.打印从1到最大的n位数](#打印从1到最大的n位数)
 * [17.删除链表的节点](#删除链表的节点)
 * [18.调整数组顺序使奇数位于偶数前面](#调整数组顺序使奇数位于偶数前面)
+* [19.链表中倒数第k个节点](#链表中倒数第k个节点)
+* [20.反转链表](#反转链表)
+* [21.合并两个排序的链表](#合并两个排序的链表)
+* [22.树的子结构](#树的子结构)
+* [23.二叉树的镜像](#二叉树的镜像)
+* [24.对称的二叉树](#对称的二叉树)
 
 
 数组中重复的数字
@@ -579,3 +585,190 @@ private:
         return nums;
     }
 ``
+
+链表中倒数第k个节点
+======================
+[leetcode](https://leetcode-cn.com/problems/lian-biao-zhong-dao-shu-di-kge-jie-dian-lcof/)输入一个链表，输出该链表中倒数第k个节点。为了符合大多数人的习惯，本题从1开始计数，即链表的尾节点是倒数第1个节点。例如，一个链表有6个节点，从头节点开始，它们的值依次是1、2、3、4、5、6。这个链表的倒数第3个节点是值为4的节点。
+### 解题思路
+* 快慢指针法，让快指针遍历到结尾`null`时，慢指针正好指向倒数第k个结点。
+* 因为要删出结点必须要前驱，所以添加一个头结点`dummy`，方便删第一个结点。
+* 注意此题返回的是删除后剩余的链，
+```cpp
+    ListNode* getKthFromEnd(ListNode* head, int k) {
+        ListNode* dummy = new ListNode(-1);
+        dummy->next = head;
+        ListNode* fast = dummy;
+        ListNode* slow = dummy;
+        while (k--) {
+            fast = fast->next;
+        }
+        while (fast) {
+            fast = fast->next;
+            slow = slow->next;
+        }
+        return slow;
+    }
+```
+
+反转链表
+===============
+[leetcode](https://leetcode-cn.com/problems/fan-zhuan-lian-biao-lcof/)定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
+### 解题思路
+* 方法1：头插法反转
+```cpp
+    ListNode* reverseList(ListNode* head) {
+        ListNode* pre = NULL;
+        ListNode* cur = head;
+        while (cur) {
+            ListNode* tmp = cur->next;
+            cur->next = pre;
+            pre = cur;
+            cur = tmp;
+        }
+        return pre;
+    }
+```
+*  方法2：用栈反转:首先遍历链表，1、把每个结点入栈，2、然后再循环出栈链接到上一个结点，3、更新当前指针。
+```cpp
+    ListNode* reverseList(ListNode* head) {
+        if (!head) return NULL;
+        stack<ListNode*> sck;
+        ListNode* cur = head;
+        while (cur) {
+            sck.push(cur);
+            cur = cur->next;
+        }
+
+        ListNode* pre = sck.top();
+        ListNode* curr = sck.top();
+        sck.pop();
+        while (!sck.empty()) {
+            curr->next = sck.top();
+            sck.pop();
+            curr = curr->next;
+        }
+        curr->next = NULL;
+        return pre;
+    }
+```
+
+合并两个排序的链表
+====================
+[leetcode](https://leetcode-cn.com/problems/he-bing-liang-ge-pai-xu-de-lian-biao-lcof/)
+输入两个递增排序的链表，合并这两个链表并使新链表中的节点仍然是递增排序的。
+### 示例 
+```
+输入：1->2->4, 1->3->4
+输出：1->1->2->3->4->4
+```
+### 解题思路
+* 合并需要三个指针，一个指向l1的`p1`,指向l2的`p2`，遍历合并后链表的`cur`指针,新链表的头指针`pre`。
+* 同时遍历两个链表，当有一个链表遍历结束时退出循环，将另一个链表剩下的直接接上新链表。
+```cpp
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        ListNode* p1 = l1;
+        ListNode* p2 = l2;
+        ListNode* pre = new ListNode(-1);
+        ListNode* cur = pre;
+        while (p1 != NULL && p2 != NULL) {
+            if (p1->val <= p2->val){
+                cur->next = p1;
+                p1 = p1->next;
+            } else {
+                cur->next = p2;
+                p2 = p2->next;
+            }
+            cur = cur->next;
+        }
+        cur->next = p1 == NULL ? p2 : p1;
+        return pre->next;
+    }
+```
+
+树的子结构
+================
+[leetcode](https://leetcode-cn.com/problems/shu-de-zi-jie-gou-lcof/)输入两棵二叉树A和B，判断B是不是A的子结构。(约定空树不是任意一个树的子结构)
+B是A的子结构， 即 A中有出现和B相同的结构和节点值。
+### 示例
+```
+例如:
+给定的树 A:
+
+     3
+    / \
+   4   5
+  / \
+ 1   2
+给定的树 B：
+
+   4 
+  /
+ 1
+返回 true，因为 B 与 A 的一个子树拥有相同的结构和节点值。
+
+```
+### 解题思路
+* 首先需要遍历整个A树每个结点，来跟跟B进行对比，所以需要两个递归，第一个递归用于遍历整个A树，第二个递归用于对比两个树。
+* 第一个递归结束条件，如果A树的结点遍历到结尾`null`说明还没发现子树，因此返回false，再根据题意空树`B == null`不属于任何子树
+* 第二个递归判断两个树是否相等或者B是否属于A，当同时遍历两个树的结点，如果有不相等的结点一定不是，结束条件：当`(A == NULL && B == NULL)`即两个树同时遍历结束 ，说明A和B完全相等，
+如果A先结束，说明A属于B，返回`false`，B先结束说吧B属于A，B是A的子树，返回`true`
+```cpp
+    bool isSubStructure(TreeNode* A, TreeNode* B) {
+        if (A == NULL || B == NULL) return false;   // 空树不算任何子树
+        if (isEqual(A, B)) return true;
+        return  isSubStructure(A->left, B) || isSubStructure(A->right, B);
+    }
+
+    bool isEqual(TreeNode* A, TreeNode* B) {
+        if (A == NULL && B == NULL) return true;    // 都刚好遍历完
+        if (B == NULL) return true;     // B遍历到尾部，A下面还有
+        if (A == NULL) return false;    // B还没有遍历完， A下面就没了
+        if (A->val != B->val) return false;     
+        return isEqual(A->left, B->left) && isEqual(A->right, B->right); 
+    }
+```
+
+二叉树的镜像
+===================
+[leetcode](https://leetcode-cn.com/problems/er-cha-shu-de-jing-xiang-lcof/)
+请完成一个函数，输入一个二叉树，该函数输出它的镜像。
+### 解题思路
+* 对于改变树结构的递归，其中一定有`root->left =` 和`root->right = `左右子树重新赋值的操作。
+* 函数意义是返回反转后的根结点。
+```cpp
+    TreeNode* mirrorTree(TreeNode* root) {
+        if (root == NULL) return NULL;
+        TreeNode* tmp = mirrorTree(root->left);
+        root->left = mirrorTree(root->right);
+        root->right = tmp;
+        return root;
+    }
+```
+
+对称的二叉树
+=================
+[leetcode](https://leetcode-cn.com/problems/dui-cheng-de-er-cha-shu-lcof/)
+请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。
+例如，二叉树 [1,2,2,3,4,4,3] 是对称的。
+```
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+```
+### 解题思路
+* 一定需要两个指针，一个递归遍历左子树，一个遍历右子树，再进行左右子树交叉结点值的对比，当发现结点不相等时返回false
+* 注意遍历到结尾`null`时的处理，都是null也属于对称。
+```cpp
+    bool isSymmetric(TreeNode* root) {
+        if(!root) return true;
+        return isSymmetric(root->left, root->right);
+    }
+
+    bool isSymmetric(TreeNode* left, TreeNode* right) {
+        if (left == NULL && right == NULL) return true;
+        if (left == NULL || right == NULL || left->val != right->val) return false;
+        return isSymmetric(left->left, right->right) && isSymmetric(left->right, right->left) ;
+    }
+```
