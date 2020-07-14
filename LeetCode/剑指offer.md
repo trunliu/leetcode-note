@@ -24,7 +24,12 @@
 * [22.树的子结构](#树的子结构)
 * [23.二叉树的镜像](#二叉树的镜像)
 * [24.对称的二叉树](#对称的二叉树)
-
+* [25.顺时针打印矩阵](#顺时针打印矩阵)
+* [26.包含min函数的栈](#包含min函数的栈)
+* [27.栈的压入、弹出序列](#栈的压入、弹出序列)
+* [28.从上到下打印二叉树](#从上到下打印二叉树)
+* [29.从上到下打印二叉树II](#从上到下打印二叉树II)
+* [30.从上到下打印二叉树III](#从上到下打印二叉树III)
 
 数组中重复的数字
 ===========
@@ -770,5 +775,216 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         if (left == NULL && right == NULL) return true;
         if (left == NULL || right == NULL || left->val != right->val) return false;
         return isSymmetric(left->left, right->right) && isSymmetric(left->right, right->left) ;
+    }
+```
+
+顺时针打印矩阵
+====================
+[leetcode](https://leetcode-cn.com/problems/shun-shi-zhen-da-yin-ju-zhen-lcof/)
+输入一个矩阵，按照从外向里以顺时针的顺序依次打印出每一个数字。
+### 解题思路
+* 定义四个边界，上下左右，每打印一圈四个边界就向里面缩小一个单位，同时为了保证每次打印都是从0下标开始的，所以一行n个元素只打印前n个，一列n个元素也只打印前n个。
+* 循环的结束条件：当上下边界重合，或者左右边界重合时，说明就剩中间一行或者一列或者一个元素三种情况未遍历打印，需要单独考虑。
+* 上下左右边界都重合说明就剩一个元素。
+```cpp
+    vector<int> spiralOrder(vector<vector<int>>& matrix) {
+        if (matrix.empty()) return {};
+        vector<int> res;
+        int top = 0, bottom = matrix.size() - 1;
+        int left = 0, right = matrix[0].size() - 1;
+        while (left < right && top < bottom) {
+            for (int i = left; i < right; ++i) res.push_back(matrix[top][i]);
+            for (int i = top; i < bottom; ++i) res.push_back(matrix[i][right]);
+            for (int i = right; i > left; --i) res.push_back(matrix[bottom][i]);
+            for (int i = bottom; i > top; --i) res.push_back(matrix[i][left]);
+            left++, right--;
+            top++, bottom--;
+        }
+        if (left == right){ // 还剩一列 或者一个
+            for (int i = top; i <= bottom; ++i) res.push_back(matrix[i][left]);
+        } else if (top == bottom) { // 还剩一行
+            for (int i = left; i <= right; ++i) res.push_back(matrix[top][i]);
+        }
+        return res;
+    }
+```
+
+包含min函数的栈
+====================
+[leetcode](https://leetcode-cn.com/problems/bao-han-minhan-shu-de-zhan-lcof/)
+定义栈的数据结构，请在该类型中实现一个能够得到栈的最小元素的 min 函数在该栈中，调用 min、push 及 pop 的时间复杂度都是 O(1)。
+### 解题思路
+* 入栈时比较当前元素与最小栈栈顶元素，更小则加入最小栈中。
+* 出栈时需要考虑当前栈顶的元素是不是最小值，如果是，则最小栈也需要弹出，不是则只弹出数据栈栈顶的元素。
+```cpp
+    stack<int> dataSck;
+    stack<int> minSck;
+    MinStack() {}
+    
+    void push(int x) {
+        dataSck.push(x);
+        if (minSck.empty()) {
+            minSck.push(x);
+        } else {
+            if (x <= minSck.top())
+                minSck.push(x);
+        }
+    }
+    
+    void pop() {
+        if (dataSck.empty()) return;
+        if (dataSck.top() == minSck.top()) {
+            dataSck.pop();
+            minSck.pop();
+        } else {
+            dataSck.pop();
+        }
+    }
+    
+    int top() {
+        return dataSck.top();
+    }
+    
+    int min() {
+        return minSck.top();
+    }
+```
+
+栈的压入、弹出序列
+=======================
+[leetcode](https://leetcode-cn.com/problems/zhan-de-ya-ru-dan-chu-xu-lie-lcof/)
+输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如，序列 {1,2,3,4,5} 是某栈的压栈序列，序列 {4,5,3,2,1} 是该压栈序列对应的一个弹出序列，但 {4,3,5,1,2} 就不可能是该压栈序列的弹出序列。
+### 解题思路
+* 根据弹出数组来模拟整个入栈和出栈的操作。
+* 因为入栈的顺序是固定的，因此根据push数组来遍历入栈，但是出栈可能发生再任意一个结点当中，但是一定按照pop数组进行的。
+* 因此只要当入栈的元素即栈顶与pop数组第一个元素相等时，代表这个刚入栈的元素要出栈了，出栈后pop数组也要往后遍历一位。
+* 用while循环是因为模拟连续出栈的操作，因为有可能一次入栈后，出现连续多次出栈操作。
+* 后面只要入栈的元素即栈顶元素与pop数组相等时，就代表该出栈了。
+* 最后如果栈空代表pop数组满足栈的操作。
+```cpp
+    bool validateStackSequences(vector<int>& pushed, vector<int>& popped) {
+        stack<int> sck;
+        int j = 0;
+        for (auto num : pushed) {
+            sck.push(num);
+            while (!sck.empty() && sck.top() == popped[j]) {
+                sck.pop();
+                j++;
+            }
+        }
+        return sck.empty();
+    }
+```
+
+从上到下打印二叉树
+=======================
+[leetcode](https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-lcof/)从上到下打印出二叉树的每个节点，同一层的节点按照从左到右的顺序打印。
+### 解题思路
+* 典型的层序遍历，使用到了队列,遍历一个结点就把他的子结点加入队列即可。
+```cpp
+    vector<int> levelOrder(TreeNode* root) {
+        if (root == NULL) return {};
+        vector<int> res;
+        list<TreeNode*> List;
+        List.push_back(root);
+        TreeNode* cur = NULL;
+        while (!List.empty()) {
+            cur = List.front();
+            List.pop_front();
+            res.push_back(cur->val);
+            if (cur->left) List.push_back(cur->left);
+            if (cur->right) List.push_back(cur->right);
+        }
+        return res;
+    }
+```
+
+从上到下打印二叉树II
+=======================
+[leetcode](https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-ii-lcof/)
+从上到下按层打印二叉树，同一层的节点按从左到右的顺序打印，每一层打印到一行。
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+输出：
+[
+  [3],
+  [9,20],
+  [15,7]
+]
+```
+### 解题思路
+* 再上题层序遍历的基础上，多了个按层打印的效果，因此每层都需要一个数组level来记录当前层的所以结点。
+* 只需要知道，每次加入队列的所有结点，即为一层的所有结点。队列的长度就是一层的个数。根据这个个数来遍历一层结点。
+```cpp
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        if (root == NULL) return {};
+        vector<vector<int>> res;
+        queue<TreeNode*> que;
+        que.push(root);
+        TreeNode* cur = NULL;
+        while (!que.empty()) {
+            vector<int> level;
+            int len = que.size();
+            while (len--) {
+                cur = que.front();
+                que.pop();
+                level.push_back(cur->val);
+                if (cur->left) que.push(cur->left);
+                if (cur->right) que.push(cur->right);
+            }
+            res.push_back(level);
+        }
+        return res;
+    }
+```
+
+从上到下打印二叉树III
+===========================
+[leetcode](https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-iii-lcof/)
+请实现一个函数按照之字形顺序打印二叉树，即第一行按照从左到右的顺序打印，第二层按照从右到左的顺序打印，第三行再按照从左到右的顺序打印，其他行以此类推。
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+输出：
+[
+  [3],
+  [20,9],
+  [15,7]
+]
+```
+### 解题思路
+* 再上体的基础上又多了一个条件，就是对于奇数层和偶数层，他的结点输出循环不同
+* 因此还需要一个变量cnt来记录当前层数，当前为偶数层时，level数组进行反转操作。
+```cpp
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        if (root == NULL) return {};
+        vector<vector<int>> res;
+        queue<TreeNode*> que;
+        que.push(root);
+        TreeNode* cur = NULL;
+        int layer = 0;
+        while (!que.empty()) {
+            vector<int> level;
+            int len = que.size();
+            while (len--) {
+                cur = que.front();
+                que.pop();
+                level.push_back(cur->val);
+                if (cur->left) que.push(cur->left);
+                if (cur->right) que.push(cur->right);
+            }
+            if (layer % 2 != 0)
+                reverse(level.begin(), level.end());
+            res.push_back(level);
+            layer++;
+        }
+        return res;
     }
 ```
