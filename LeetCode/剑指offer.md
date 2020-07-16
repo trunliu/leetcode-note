@@ -1130,11 +1130,15 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         return newListDummy->next;
     }
 ````
-剑指 Offer 36. 二叉搜索树与双向链表
+
+二叉搜索树与双向链表
 ===============================
 [leetcode](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof/)
 输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的循环双向链表。要求不能创建任何新的节点，只能调整树中节点指针的指向。
 ### 解题思路
+* 链表得链接一定是往前链接，所以需要维护一个指向上一个结点得指针`last`
+* 因为是一个搜索树，所以选择中序遍历,就是从小到大排好序得。
+* 当遍历完后，last指针正好指向最后一个结点，将其与第一个结点进行链接。
 
 ````cpp
     Node* last = NULL; //上一个结点
@@ -1154,7 +1158,6 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         last->right = root;
         root->left = last;
         last = root;
-        nodeArr.push_back(root);
         inorder(root->right);
     }
 ````
