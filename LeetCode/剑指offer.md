@@ -988,3 +988,173 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         return res;
     }
 ```
+
+二叉搜索树的后序遍历序列
+====================================
+[leetcode](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-de-hou-xu-bian-li-xu-lie-lcof/)
+输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历结果。如果是则返回 true，否则返回 false。假设输入的数组的任意两个数字都互不相同
+### 示例
+````
+     5
+    / \
+   2   6
+  / \
+ 1   3
+输入: [1,6,3,2,5]
+输出: false
+
+输入: [1,3,2,6,5]
+输出: true
+````
+### 解题思路
+* 只要是根据一个序列来判断是否是某个树得某种遍历,一定都需要两个参数`left`和`right`,因为要框出左子树和右子树。
+* 因为后序遍历，所以最后一位即`right`所指一定是这个树得根结点`root`
+* 找完root结点，还需要找到左子树和右子树得分界点，因为是二叉搜索树，左子树得所有结点值一定小于右子树，利用while遍历序列发现第一个大于root得结点即为右子树得结点，记为mid。
+* 这样一个序列分配完成，right所指为root结点，[left, mid-1] 为左子树结点，[mid, right-1]为右子树 
+* 判断：如果右子树中发现一个小于root结点，就不满足二叉搜索树了。
+```cpp
+    bool verifyPostorder(vector<int>& postorder) {
+        int left = 0, right = postorder.size() - 1;
+        return dfs(postorder, left, right);
+    }
+
+    bool dfs(vector<int>& postorder, int left, int right) {
+        if (left >= right) return true;
+        int root = postorder[right];
+        int mid = 0;
+        while (postorder[mid] < root) mid++;
+        // mid左为left，< root; mid右为right > root
+        for (int i = mid; i < right; ++i) {
+            if (postorder[i] < root) return false;
+        }
+        return dfs(postorder, left , mid - 1) && dfs(postorder, mid, right - 1);
+    }
+```
+
+二叉树中和为某一值的路径
+====================================
+[leetcode](https://leetcode-cn.com/problems/er-cha-shu-zhong-he-wei-mou-yi-zhi-de-lu-jing-lcof/)
+输入一棵二叉树和一个整数，打印出二叉树中节点值的和为输入整数的所有路径。从树的根节点开始往下一直到叶节点所经过的节点形成一条路径。
+### 示例:
+给定如下二叉树，以及目标和 sum = 22，
+````
+              5
+             / \
+            4   8
+           /   / \
+          11  13  4
+         /  \    / \
+        7    2  5   1
+返回:
+
+[
+   [5,4,11,2],
+   [5,8,4,5]
+]
+````
+### 解题思路
+* 通过深度递归,每经过一个结点sum就减去当前结点值，数组path记录路径经过得点，并继续往下递归
+* 当sum减至刚好为0时，且当前结点没有后继，属于叶子结点，说明这是一条路径。加入结果数组中即可。
+```cpp
+    vector<vector<int>> res;
+    vector<vector<int>> pathSum(TreeNode* root, int sum) {
+        vector<int> path;
+        dfs(root, sum, path);
+        return res;
+    }
+
+    void dfs (TreeNode* root, int sum, vector<int>& path) {
+        if (root == NULL) return;
+        path.push_back(root->val);
+        sum -= root->val;
+        if (root->left == NULL && root->right == NULL && sum == 0) res.push_back(path);
+        dfs(root->left, sum, path);
+        dfs(root->right, sum, path);
+        path.pop_back();
+        return; 
+    }
+```
+
+复杂链表的复制
+===========================
+[leetcode](https://leetcode-cn.com/problems/fu-za-lian-biao-de-fu-zhi-lcof/)
+请实现 copyRandomList 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 next 指针指向下一个节点，还有一个 random 指针指向链表中的任意节点或者 null。
+### 解题思路
+* 因为是深拷贝链表，所以每遍历一个结点就new一个新结点，并赋值
+* 链表得链接，只能链接当前结点与上一个结点，只要遍历过得结点才能链接，不能往后链接，因此需要维护一个last指针，指向当前结点得前驱
+* 由于本题每个结点还有一个随机链接，所以我们需要两个表，第一个表记录原链表得随机指针指向了那个结点得下标。第二表需要记录，新链表每个结点得地址。
+* 链接随机指针时：先查原表当前结点随机指针指得是第几个结点，再根据下标查新表获取新结点地址，再链接。
+````cpp
+    Node* copyRandomList(Node* head) {
+        Node* cur = head;
+        // 求长度
+        int len = 0;
+        while (cur) {
+            len++;
+            cur = cur->next;
+        }
+        
+        unordered_map<Node*, int> oldmap(len);
+        unordered_map<int, Node*> newmap(len);
+        
+        int index = 0;
+        Node* newListDummy = new Node(-1); // 新链表头节点
+        Node* curr = newListDummy;         // 新链表遍历指针
+        cur = head;
+        while (cur) {
+            // 新建结点
+            Node* newNode = new Node(cur->val);
+            curr->next = newNode;
+            // 建表
+            newmap[index] = newNode;
+            oldmap[cur] = index;
+            index++;
+            // 遍历
+            curr = curr->next;
+            cur = cur->next;
+        }
+        
+        // 同步遍历、链接random
+        curr = newListDummy->next;
+        cur = head;
+        while (cur) {
+            if (cur->random) {
+                int idx = oldmap[cur->random];
+                curr->random = newmap[idx];
+            } else {
+                curr->random = NULL;
+            }
+            curr = curr->next;
+            cur = cur->next;
+        }
+        return newListDummy->next;
+    }
+````
+剑指 Offer 36. 二叉搜索树与双向链表
+===============================
+[leetcode](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof/)
+输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的循环双向链表。要求不能创建任何新的节点，只能调整树中节点指针的指向。
+### 解题思路
+
+````cpp
+    Node* last = NULL; //上一个结点
+    Node* treeToDoublyList(Node* root) {
+        if (!root) return NULL;
+        Node* head = new Node(-1);
+        last = head;
+        inorder(root);
+        last->right = head->right;
+        head->right->left = last;
+        return head->right;
+    }
+
+    void inorder(Node* root) {
+        if (!root) return;
+        inorder(root->left);
+        last->right = root;
+        root->left = last;
+        last = root;
+        nodeArr.push_back(root);
+        inorder(root->right);
+    }
+````
