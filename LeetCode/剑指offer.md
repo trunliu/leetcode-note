@@ -30,10 +30,15 @@
 * [28.从上到下打印二叉树](#从上到下打印二叉树)
 * [29.从上到下打印二叉树II](#从上到下打印二叉树II)
 * [30.从上到下打印二叉树III](#从上到下打印二叉树III)
+* [31.二叉搜索树的后序遍历序列](#二叉搜索树的后序遍历序列)
+* [32.二叉树中和为某一值的路径](#二叉树中和为某一值的路径)
+* [33.复杂链表的复制](#复杂链表的复制)
+* [34.二叉搜索树与双向链表](#二叉搜索树与双向链表)
+* [35.序列化二叉树](#序列化二叉树)
 
 数组中重复的数字
 ===========
-[leetcode](https://leetcode-cn.com/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/)找出数组中重复的数字。
+[leetcode](https://leetcode-cn.com/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/) 找出数组中重复的数字。
 在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任意一个重复的数字。
 ### 解题思路1
 * 建立哈希表或者数组记录数字出现次数，大于1就返回
@@ -1161,3 +1166,134 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         inorder(root->right);
     }
 ````
+
+序列化二叉树
+========================
+[leetcode](https://leetcode-cn.com/problems/xu-lie-hua-er-cha-shu-lcof/) 请实现两个函数，分别用来序列化和反序列化二叉树。
+````
+你可以将以下二叉树：
+
+    1
+   / \
+  2   3
+     / \
+    4   5
+
+序列化为 "[1,2,3,null,null,4,5]"
+
+````
+### 解题思路
+* 对于根据序列来建树得题一般都不简单。本题属于困难
+* 本题涉及得技巧：层序遍历、数字转字符串、字符串转数字
+* 删除字符串最后一位三种方法：
+    * 迭代器：`str.erase(str.end() - 1);`
+    * 提取子串：`str.substr(0, str.size() - 1);`
+    * 数组：`str.pop_back();`     
+* 数字转字符串；我用的是从个位开始往前添加每位数字，再`reverse()`反转字符串。效率很低。
+* 本代码写的不好
+```cpp
+    string serialize(TreeNode* root) {
+        if (!root) return "";
+        queue<TreeNode*> que;
+        que.push(root);
+        TreeNode* cur = NULL;
+        string res;
+        while (!que.empty()) {
+            cur = que.front();
+            que.pop();
+            if (cur) {
+                res += toString(cur->val);
+                res += ',';
+                que.push(cur->left);
+                que.push(cur->right);
+            } else {
+                res += "null,";
+            }
+        }
+        //res.erase(res.end() - 1);         // 迭代器/三种用法
+        //res.substr(0, res.size() - 1);    // 子串
+        res.pop_back();                     
+        //cout << "[" + res + "]"<<endl;
+        return "[" + res + "]";
+    }
+
+    string toString(int val) {
+        string res = "";
+        if (val < 0) {  // val < 10
+            res += '-';
+            res += abs(val) + '0';
+        } else {    // val >= 0
+            while (val) {
+                res += val % 10 + '0';
+                val /= 10;
+            }
+            reverse(res.begin(), res.end());
+        }
+        return res;
+    }
+
+
+    TreeNode* deserialize(string data) {
+        if (data.size() == 0) return NULL; 
+        vector<int> data_int;
+        int left = 1;
+        int right = 1;
+        
+        while (left < data.size()) {
+            while (data[right] != ',' && data[right] != ']') right++;
+            int val = toInt(data, left, right - 1);
+            data_int.push_back(val);
+            left = right + 1;
+            right++;
+        }       
+
+        TreeNode* root = new TreeNode(data_int[0]);
+        queue<TreeNode*> que;
+        que.push(root);
+    
+        double start = 0;   // 子结点起始坐标
+        double end = 0;
+        double n = 1;  // 层数
+        TreeNode* cur = NULL;
+        while (!que.empty()) {
+            double cnt = pow(2, n++);      
+            start = cnt - 1;             
+            end = start + cnt - 1;     
+            while (start <= end) {
+                if (start >= data_int.size()) break;
+                cur = que.front();           
+                que.pop();
+                
+                TreeNode* leftNode = NULL;
+                TreeNode* rightNode = NULL;
+                if (data_int[start] != INT_MIN)
+                    leftNode = new TreeNode(data_int[start]);
+                
+                if (data_int[start + 1] != INT_MIN) 
+                    rightNode = new TreeNode(data_int[start + 1]);
+                
+                
+                if (leftNode) que.push(leftNode);
+                if (rightNode) que.push(rightNode);
+                
+                cur->right = rightNode;
+                cur->left = leftNode;
+                
+                start += 2;
+            } 
+        }
+        return root;
+    }
+
+    int toInt(string str, int left, int right) {
+        if (str[left] == 'n') return INT_MIN;
+        int res = 0;
+        bool isNeg = false;
+        if (str[left] == '-') left++, isNeg = true;
+        while (left <= right) {
+            res = res * 10 + str[left] - '0';
+            left++;       
+        }
+        return isNeg ? -res : res;
+    }
+```
