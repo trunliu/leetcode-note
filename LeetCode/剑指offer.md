@@ -1297,3 +1297,120 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         return isNeg ? -res : res;
     }
 ```
+
+字符串的排列
+===================
+[leetcode](https://leetcode-cn.com/problems/zi-fu-chuan-de-pai-lie-lcof/)输入一个字符串，打印出该字符串中字符的所有排列。
+你可以以任意顺序返回这个字符串数组，但里面不能有重复元素。
+### 示例
+```
+输入：s = "abc"
+输出：["abc","acb","bac","bca","cab","cba"]
+```
+### 解题思路
+* 回溯递归，从第一个字符开始，其他所有字符都属于他的下一结点，所有需要一个for循环遍历全部，为了防止重复遍历需要一个vis数组，同时还需要一个path记录遍历经过的结果
+* 回溯递归结束后还需去重，2种方法：1、使用集合set 2、排序去重unique 
+
+```cpp
+    vector<string> permutation(string s) {
+        vector<string> res;
+        string path;
+        vector<bool> isVis(s.size(), false);
+        dfs(s, path, isVis, res);
+        //unordered_set<string> set(res.begin(), res.end()); //使用集合去重。
+        //res.assign(set.begin(), set.end());
+        sort(res.begin(), res.end());                       // 排序去重
+        auto end = unique(res.begin(),res.end());           // 返回最后一位
+        res.erase(end, res.end());                          // 剪掉
+        return res;
+    }
+
+    void dfs (string s, string& path, vector<bool>& isVis, vector<string>& res) {
+        if (path.size() == s.size()) {
+            res.push_back(path);
+            return; 
+        }
+        // 在所有得选择列表中继续选择
+        for (int i = 0; i < s.size(); ++i) {
+            if (isVis[i]) continue;
+            isVis[i] = true;
+            path += s[i];
+            dfs(s, path, isVis, res);
+            isVis[i] = false;
+            path.pop_back();
+        }
+    }
+```
+
+数组中出现次数超过一半的数字
+=============================
+[leetcode](https://leetcode-cn.com/problems/shu-zu-zhong-chu-xian-ci-shu-chao-guo-yi-ban-de-shu-zi-lcof/)数组中有一个数字出现的次数超过数组长度的一半，请找出这个数字。
+你可以假设数组是非空的，并且给定的数组总是存在多数元素。
+### 解题思路
+* 哈希表记录次数
+```cpp
+    int majorityElement(vector<int>& nums) {
+        int len = nums.size();
+        unordered_map<int, int> cnt;
+        for (auto& num : nums) {
+            cnt[num]++;
+            if (cnt[num] > len / 2) return num;
+        }
+        return -1;
+    }
+```
+* 先排序，因为至少一半都是一个数字，所以中间值一定是他
+```cpp
+    int majorityElement(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        return nums[nums.size() / 2];
+    }
+```
+* 摩尔投票法： 有同意和反对票。多数值当作同意票，其他所有值都当做反对票, 正负票正好抵消，
+* 需要一个`last`值记录上衣结点的数值，用于比较，vato票数一旦为0就重新更新last值。，由于
+* 因为最后一定都是一个数值，所以last保存的就是那个值。
+```cpp
+    int majorityElement(vector<int>& nums) {
+       int last = 0, vote = 0;   // 记录投票数
+       for (int i = 0; i < nums.size(); ++i) {
+           if (vote == 0) { // 正负票正好抵消，
+               last = nums[i];
+               vote++;
+           } else { // 当前票与上一票进行比较，相同就++，不同就抵消了
+               last == nums[i] ?  vote++ : vote--;
+           }
+       }
+       return last; // 最后就剩多数票了
+    }
+```
+
+最小的k个数
+===================
+[leetcode](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)输入整数数组 arr ，找出其中最小的 k 个数。例如，输入4、5、1、6、2、7、3、8这8个数字，则最小的4个数字是1、2、3、4。
+### 解题思路
+* 经典的topK问题
+* 求topK最小就用大顶堆。求topK最大就用小顶堆。
+* C++用优先队列来实现堆，priority_queue需要三个参数：三个参数：元素类型，容器类型，func类型
+* 小顶堆升序排列，大顶堆降序排列。顶top就是队列第一个元素。
+* 维护大小为k的大顶堆，当堆满时判断，新插入元素只要小于堆顶（即最大值），就入堆，队顶的最大值弹出。
+```cpp
+    vector<int> getLeastNumbers(vector<int>& arr, int k) {
+        if (k == 0 || arr.size() == 0) return {};
+        priority_queue<int, vector<int>, less<int>> que;    
+        vector<int> res;
+        for (auto& num : arr) {
+            if (que.size() == k) { 
+                if (num <= que.top())  
+                    que.pop(); 
+                else 
+                    continue;
+            }  
+            que.push(num);
+        }
+        while (k--) {
+            res.push_back(que.top());
+            que.pop();
+        }
+        return res;
+    }
+```
