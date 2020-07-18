@@ -38,6 +38,7 @@
 * [36.字符串的排列](#字符串的排列）
 * [37.数组中出现次数超过一半的数字](#数组中出现次数超过一半的数字)
 * [38.最小的k个数](#最小的k个数)
+* [39.连续子数组的最大和](#连续子数组的最大和)
 
 数组中重复的数字
 ===========
@@ -1417,3 +1418,44 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         return res;
     }
 ```
+
+连续子数组的最大和
+======================
+{leetcode](https://leetcode-cn.com/problems/lian-xu-zi-shu-zu-de-zui-da-he-lcof/)输入一个整型数组，数组里有正数也有负数。数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。
+要求时间复杂度为O(n)。
+### 解题思路
+* 首先想到动态规划
+* dp[i]代表到当前i位置时，连续的子数组和得最大值。他与dp[i-1]有关，如果dp[i-1]+num[i]更大，那设为dp[i]，但是如果dp[i-1]+nums[i]还没有本身nums[i]大的话说明前面的dp[i-1]还是个负值，产生负影响，所以前面的i-1个子串都该舍弃。
+* 难点在于状态转移方程：因为题意要求必须是连续，所以如果+nums[i]后，还没有本身nums[i]大时，就断开前面得重新开始。
+```cpp
+    int maxSubArray(vector<int>& nums) {
+        int len = nums.size();
+        vector<int> dp(len);
+        int maxSum = nums[0];
+        for (int i = 0; i < len; ++i) {
+            if (i == 0) dp[0] = nums[0];
+            else dp[i] = max(dp[i - 1] + nums[i], nums[i]); 
+            maxSum = max(maxSum, dp[i]);
+        }
+        return maxSum;
+    }
+```
+* 如果面试要求空间复杂度O(1)时
+* 该使用一个变量pre来记录dp[i-1]
+* 可以使用技巧：`cur += max(pre, 0);`来代替if else操作。
+```cpp
+    int maxSubArray(vector<int>& nums) {
+        int maxSum = nums[0];
+        int pre = nums[0];
+        int cur = 0;
+        for  (int i = 1; i < nums.size(); i++) {
+            cur = nums[i];
+            cur += max(pre, 0);
+            pre = cur;
+            maxSum = max(maxSum, cur);
+        }
+        return maxSum;
+    }
+```
+
+
