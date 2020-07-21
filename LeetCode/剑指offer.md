@@ -39,6 +39,8 @@
 * [37.数组中出现次数超过一半的数字](#数组中出现次数超过一半的数字)
 * [38.最小的k个数](#最小的k个数)
 * [39.连续子数组的最大和](#连续子数组的最大和)
+* [40.把数组排成最小的数](#把数组排成最小的数)
+
 
 数组中重复的数字
 ===========
@@ -1458,4 +1460,22 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
     }
 ```
 
+把数组排成最小的数
+======================
+[leetcode](https://leetcode-cn.com/problems/ba-shu-zu-pai-cheng-zui-xiao-de-shu-lcof/)输入一个非负整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
+### 解题思路
+* 本质是一个排序问题，需要设计一定得规则将字串排序并输出
+* 将所有得数字转换为字符串添加到vector数组中，方便使用sort()函数进行排序
+* `[](type parm, type parm){return ;}` 使用lamada表达式建立得匿名函数，作为sort函数得比较cmp函数
+* 比较原则：如意两个数字例如：3和30， 如果拼接得字符串330 > 303，就认为3 > 30 
+```cpp
+    string minNumber(vector<int>& nums) {
+        vector<string> res;
+        for (auto it : nums) res.push_back(to_string(it));
+        sort(res.begin(), res.end(), [](string str1, string str2){return str1 + str2 < str2 + str1;});
+        string ans;
+        for (auto it : res) ans += it;
+        return ans;
+    }
+```
 
