@@ -1478,4 +1478,18 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         return ans;
     }
 ```
+```Bash
+class Solution:
+    def minNumber(self, nums: List[int]) -> str:
+        def sort_rule(x, y):
+            a, b = x + y, y + x
+            if a > b: return 1
+            elif a < b: return -1
+            else: return 0
+        strs = []
+        for num in nums:
+            strs.append(str(num))
+        strs.sort(key = functools.cmp_to_key(sort_rule))
+        return ''.join(strs)
+```
 
