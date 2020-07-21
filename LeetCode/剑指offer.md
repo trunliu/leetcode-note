@@ -1478,7 +1478,11 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         return ans;
     }
 ```
-```Bash
+### python3
+* ` join()`：用一个字符去拼接一个字符列表
+* `append()`：列表得追加
+* `functools.cmp_to_key`：将老式得cmp函数转换为关键词函数，（python3取消了cmp函数使用关键字函数）
+```cpp
 class Solution:
     def minNumber(self, nums: List[int]) -> str:
         def sort_rule(x, y):
