@@ -39,7 +39,13 @@
 * [37.数组中出现次数超过一半的数字](#数组中出现次数超过一半的数字)
 * [38.最小的k个数](#最小的k个数)
 * [39.连续子数组的最大和](#连续子数组的最大和)
-* [40.把数组排成最小的数](#把数组排成最小的数)
+* [40.连续子数组的最大和]()
+* [41.1～n整数中1出现的次数]()
+* [42.把数组排成最小的数](#把数组排成最小的数)
+* [43.把数字翻译成字符串](#把数字翻译成字符串)
+* [44.礼物的最大价值](#礼物的最大价值)
+* [45.最长不含重复字符的子字符串](#最长不含重复字符的子字符串)
+
 
 
 数组中重复的数字
@@ -1482,7 +1488,7 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
 * ` join()`：用一个字符去拼接一个字符列表
 * `append()`：列表得追加
 * `functools.cmp_to_key`：将老式得cmp函数转换为关键词函数，（python3取消了cmp函数使用关键字函数）
-```cpp
+```Bash
 class Solution:
     def minNumber(self, nums: List[int]) -> str:
         def sort_rule(x, y):
@@ -1497,3 +1503,120 @@ class Solution:
         return ''.join(strs)
 ```
 
+把数字翻译成字符串
+=========================
+[leetcode](https://leetcode-cn.com/problems/li-wu-de-zui-da-jie-zhi-lcof/)给定一个数字，我们按照如下规则把它翻译为字符串：0 翻译成 “a” ，1 翻译成 “b”，……，11 翻译成 “l”，……，25 翻译成 “z”。一个数字可能有多个翻译。请编程实现一个函数，用来计算一个数字有多少种不同的翻译方法。
+
+```
+输入: 12258
+输出: 5
+解释: 12258有5种不同的翻译，分别是"bccfi", "bwfi", "bczi", "mcfi"和"mzi"
+```
+### 解题思路
+* 首先想到用动态规划的思路，想想每新增加一个字符对方法数量改变所做的贡献。例如1，只有一种翻译方式，而2加入后可以分两种情况，2翻译成b时，是一种，12一起翻译又是一种方式，
+* 注意所谓的贡献指，新增2对方法数量的贡献，新增2之前的方法数是n，新增2后还是n，贡献值为0。
+* 状态转移方程：先判断新增的数字与前一个数字合并，是否在1~26之间，如果是则dp[i] = d[i -1] + dp[i - 2],否则还是dp[i-1]
+* 题目中还设置了限制，前导0的情况下不算。即01不属于1~26之间。
+```cpp
+    // 判断与前一个数组能否形成一个字母
+    bool helper(int num1, int num2) {
+        if (num1 == 0)return false;
+        return num1 * 10 + num2 >= 0 && num1 * 10 + num2 <= 25; 
+    }
+
+    // 将一个数，按位填入数组中
+    vector<int> toVector(int num) {
+        vector<int> res;
+        if (num == 0) return {0};
+        while (num) {
+            res.push_back(num % 10);
+            num /= 10;
+        }
+        reverse(res.begin(), res.end());
+        return res;
+    }
+    
+    int translateNum(int num) {
+        if (num < 10) return 1;
+        vector<int> nums = toVector(num);
+        vector<int> dp(nums.size());
+        dp[0] = 1;
+        dp[1] = helper(nums[0], nums[1]) ? 2 : 1;
+        for (int i = 2; i < nums.size(); ++i) 
+            dp[i] = helper(nums[i - 1], nums[i]) ? dp[i - 1] + dp[i - 2] : dp[i - 1];
+        return dp.back();
+    }
+```
+
+礼物的最大价值
+===================
+[leetcode](https://leetcode-cn.com/problems/li-wu-de-zui-da-jie-zhi-lcof/)在一个 m*n 的棋盘的每一格都放有一个礼物，每个礼物都有一定的价值（价值大于 0）。你可以从棋盘的左上角开始拿格子里的礼物，并每次向右或者向下移动一格、直到到达棋盘的右下角。给定一个棋盘及其上面的礼物的价值，请计算你最多能拿到多少价值的礼物？
+### 示例
+```
+输入: 
+[
+  [1,3,1],
+  [1,5,1],
+  [4,2,1]
+]
+输出: 12
+解释: 路径 1→3→5→2→1 可以拿到最多价值的礼物
+```
+### 解题思路
+* 矩阵的动态规划问题，要求到矩阵中的任意一格的值，都与当前格子上和左格子值有关。因此状态转移方程为：`dp[i[j] = max(dp[i - 1][j], dp[i][j - 1]) + grid[i][j]`
+* 注意边界问题，在第一行和第一列得状态转移方程稍微有所不同，第一个点可以直接跳过比方便遍历
+```cpp
+    int maxValue(vector<vector<int>>& grid) {
+        int row = grid.size();
+        int col = grid[0].size();
+        vector<vector<int>> dp(row, vector<int>(col, 0));
+        dp[0][0] = grid[0][0];
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                if (i == 0 && j == 0) continue;
+                if (i == 0) dp[0][j] = dp[0][j - 1] + grid[0][j];
+                else if (j == 0) dp[i][0] = dp[i - 1][0] + grid[i][0];
+                else dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
+            }
+        }
+        return dp[row-1][col-1];
+    }
+```
+
+最长不含重复字符的子字符串
+==========================
+[leetcode](https://leetcode-cn.com/problems/zui-chang-bu-han-zhong-fu-zi-fu-de-zi-zi-fu-chuan-lcof/)请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。
+
+### 示例
+```
+输入: "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+输入: "pwwkew"
+输出: 3
+解释: 因为无重复字符的最长子串是 "wke"，所以其长度为 3。
+     请注意，你的答案必须是 子串 的长度，"pwke" 是一个子序列，不是子串。
+```
+### 解题思路
+* 子串指连续的，子序列可以不连续
+* 一看到子串问题大部分都是用滑动窗口思想解决
+* 首先移动右指针，当发现有重复的字符出现时，开始移动左指针，直到没有重复字符出现，记录长度个数。
+* 判断有无重复字母可用map记录当前窗口中每个字符出现频率。
+```cpp
+    int lengthOfLongestSubstring(string s) {
+        int left = 0, right = 0;
+        int n = s.size();
+        map<char, int> cnt;
+        int res = 0;
+        while (right < n) {
+            while (cnt[s[right]] == 0 && right < n) {
+                cnt[s[right]]++; 
+                res = max(res, right - left + 1);
+                right++;
+            }
+            cnt[s[left]]--;
+            left++;
+        }
+        return res;
+    }
+```
