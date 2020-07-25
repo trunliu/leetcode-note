@@ -46,6 +46,13 @@
 * [44.礼物的最大价值](#礼物的最大价值)
 * [45.最长不含重复字符的子字符串](#最长不含重复字符的子字符串)
 * [46.丑数](#丑数)
+* [47.第一个只出现一次的字符](#第一个只出现一次的字符)
+* [48.两个链表的第一个公共节点](#两个链表的第一个公共节点)
+* [49.在排序数组中查找数字I](#在排序数组中查找数字I)
+* [50.二叉搜索树的第k大节点](#二叉搜索树的第k大节点)
+* [51.0～n-1中缺失的数字](#0～n-1中缺失的数字)
+
+
 
 
 数组中重复的数字
@@ -1651,3 +1658,117 @@ class Solution:
         return ugly.back();
     }
 ```
+
+
+第一个只出现一次的字符
+===========================
+[leetcode](https://leetcode-cn.com/problems/di-yi-ge-zhi-chu-xian-yi-ci-de-zi-fu-lcof/)
+在字符串 s 中找出第一个只出现一次的字符。如果没有，返回一个单空格。 s 只包含小写字母。
+### 解题思路
+* 建立哈希表记录所有字符出现次数，第二次在遍历s字符串找到出现次数为1的字母
+
+```cpp
+    char firstUniqChar(string s) {
+        unordered_map<char,int> cnt;
+        for (char ch : s) 
+            cnt[ch]++;
+        for (auto ch : s) 
+            if (cnt[ch] == 1) return ch; 
+        return ' ';
+    }
+```
+
+
+两个链表的第一个公共节点
+==========================
+[leetcode](https://leetcode-cn.com/problems/liang-ge-lian-biao-de-di-yi-ge-gong-gong-jie-dian-lcof/)输入两个链表，找出它们的第一个公共节点。
+### 解题思路
+>太浪漫了 两个结点不断的去对方的轨迹中寻找对方的身影，只要二人有交集，就终会相遇❤
+```cpp
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode* p1 = headA;
+        ListNode* p2 = headB;
+        while (p1 != p2) {
+            p1 = p1 == NULL ? headB : p1->next;
+            p2 = p2 == NULL ? headA : p2->next;
+        }
+        return p1 == NULL ? NULL: p1;
+    }
+```
+
+
+在排序数组中查找数字I
+=========================
+[leetcode](https://leetcode-cn.com/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/)统计一个数字在排序数组中出现的次数。
+### 解题思路
+* 既然题目中提到了是排序数组就要利用这个条件，主要还是考二分法
+* 因为排好序了，所以目标数字一定都是连续得，只要找到最左边得数字，再往后遍历统计数量即可。
+
+```cpp
+    int search(vector<int>& nums, int target) {
+        int left = 0, right = nums.size() - 1;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] == target) right = mid;
+            else if (nums[mid] < target) left = mid + 1;
+            else right = mid;  
+        }
+        int cnt = 0;
+        while (left < nums.size() && nums[left++] == target)
+            cnt++;
+        return cnt;
+    }
+```
+
+0～n-1中缺失的数字
+=========================
+[leetcode](https://leetcode-cn.com/problems/que-shi-de-shu-zi-lcof/)一个长度为n-1的递增排序数组中的所有数字都是唯一的，并且每个数字都在范围0～n-1之内。在范围0～n-1内的n个数字中有且只有一个数字不在该数组中，请找出这个数字。
+### 解题思路
+* 排序数组找某个数首先想到二分法，其次找缺失数字两头数组得不同点，加以区分，发现他们与下标得关系不同
+* 左边数字与下标相同，而右边数组与下标不同，通过二分法找到缺失的位置
+* 边界的判断，如果left指针指向最后一个元素，且当前元素与下标是相等的，说明数组中间并没有缺，缺的是最后一位的数字。
+```cpp
+    int missingNumber(vector<int>& nums) {
+        int left = 0, right = nums.size() - 1;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] != mid) right = mid;
+            else left = mid + 1;
+        }
+        return left == nums.size() - 1 && nums[left] == left ? left + 1 : left;
+    }
+```
+
+二叉搜索树的第k大节点
+========================
+[leetcode](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-de-di-kda-jie-dian-lcof/)给定一棵二叉搜索树，请找出其中第k大的节点。
+### 示例
+```
+输入: root = [3,1,4,null,2], k = 1
+   3
+  / \
+ 1   4
+  \
+   2
+输出: 4
+```
+### 解题思路
+* BST的特点是中序遍历是排好序的，稍作调整，让中序遍历的时候先遍历右子树，最后再遍历左子树，可以实现从大到小的顺序
+```cpp
+    int res = 0;
+    int cnt = 0;
+    int kthLargest(TreeNode* root, int k) {
+        dfs(root, k);
+        return res;
+    }
+    void dfs(TreeNode* root, int& k) {
+        if (!root) return;
+        dfs(root->right, k);
+        if (--k == 0) {
+            res = root->val;
+            return ;
+        }
+        dfs(root->left, k);
+    }
+```
+
