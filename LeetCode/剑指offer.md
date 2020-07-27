@@ -1740,7 +1740,7 @@ class Solution:
 ```
 
 二叉搜索树的第k大节点
-========================
+======================
 [leetcode](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-de-di-kda-jie-dian-lcof/)给定一棵二叉搜索树，请找出其中第k大的节点。
 ### 示例
 ```
@@ -1771,4 +1771,336 @@ class Solution:
         dfs(root->left, k);
     }
 ```
+
+ 二叉树的深度
+===============
+[leetcode](https://leetcode-cn.com/problems/er-cha-shu-de-shen-du-lcof/)输入一棵二叉树的根节点，求该树的深度。从根节点到叶节点依次经过的节点（含根、叶节点）形成树的一条路径，最长路径的长度为树的深度。
+### 解题思路
+* 因为要求每个节点得高度必须先知道其左右子节点高度信息，所以用后序遍历得到左右子书高度
+* 当前节点得高度为左右子树高度最大值 + 1
+* 为了防止重复计算某个子树节点高度可以使用哈希表对遍历过得节点高度进行储存。计算得时候直接进行取值
+
+```cpp
+    unordered_map<TreeNode*, int> height;
+    int maxDepth(TreeNode* root) {
+        if (!root) {
+            height[root] = 0;
+            return 0;
+        }
+        
+        int left = maxDepth(root->left);
+        int right = maxDepth(root->right);
+        height[root] = max(height[root->left], height[root->right]) + 1;
+        return height[root];
+    }
+```
+
+平衡二叉树
+===========
+[leetcode](https://leetcode-cn.com/problems/ping-heng-er-cha-shu-lcof/)输入一棵二叉树的根节点，判断该树是不是平衡二叉树。如果某二叉树中任意节点的左右子树的深度相差不超过1，那么它就是一棵平衡二叉树。
+### 解题思路
+* 要判断当前节点是否满足平衡二叉树条件需要先知道左右子树得高度差，因此需要先遍历左右子树，因此使用后序遍历
+* 如果左右子节点有任一不满足，直接返回false
+* 如果当前节点不满足也直接返回false
+* 因为计算节点得高度也是后序遍历，因此可以同时用哈希表记录遍历过得节点高度
+
+```cpp
+    unordered_map<TreeNode*, int> height;
+    bool isBalanced(TreeNode* root) {
+        if (!root) {
+            height[root]  = 0;
+            return true;
+        }
+        if (!isBalanced(root->left) || !isBalanced(root->right)) return false;
+        if (abs(height[root->left] - height[root->right]) > 1) return false;
+        height[root] = max(height[root->left], height[root->right]) + 1;
+        return true;
+    }
+```
+
+数组中数字出现的次数
+======================
+[leetcode](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/)一个整型数组 nums 里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。要求时间复杂度是O(n)，空间复杂度是O(1)。
+### 解题思路
+* 普通思路使用哈希表，但一定不是面试官想要得答案
+* 主要考点还是位运算：
+	* ^异或：x ^ x = 0; 
+	* ^异或其他常用用法： i ^ 0 = i; i ^ 1 = ~i; (i表示某一位)
+* 全部数字进行异或后，凡是出现两次得数都会抵消掉，因此最后剩下得数就是只出现一次得两个数异或。
+* 加入A ^ B = C 数组c得二进制形式下，某一个位出现的1一定来自与A或B中的其中一个。通过这一位来区别A和B
+* `int mask = A & (-A)` 可以得A二进制最右边位的1，用这个数mask来做为掩码。
+* 通过mask掩码与运算，所以数字都区分为两类，一类是有掩码位为1的数，另一类是掩码位为0的数
+* 再次分别异或，最终得到只出现一次的两个数。
+
+```cpp
+    vector<int> singleNumbers(vector<int>& nums) {
+        int sum = 0;
+        for (auto num: nums) 
+            sum ^= num;
+        int res1 = 0, res2 = 0;
+        int mask = sum & (-sum);
+        for (auto num : nums) {
+            if (mask & num) 
+                res1 ^= num;
+            else 
+                res2 ^= num;
+        } 
+        return {res1, res2};
+    }
+```
+
+数组中数字出现的次数II
+=======================
+[leetcode](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-ii-lcof/)
+在一个数组 nums 中除一个数字只出现一次之外，其他数字都出现了三次。请找出那个只出现一次的数字。
+### 解题思路
+* 统计所有数字二进制形式下，各个位1出现的次数和，保存再`cnt[32]`
+* 出现3次数字的位，1的个数一定是3的倍数，因此对cnt[32]各位进行3的取模运算。
+* 最终再将cnt[32]转换为整型数字，即为所求
+```cpp
+    int singleNumber(vector<int>& nums) {
+        int cnt[32];
+        memset(cnt, 0, sizeof(int) * 32);
+        for (auto num : nums) {
+            unsigned int mask = 1;  // 每个数都要重新复位一下, 不用无符号会报错
+            for (int i = 31; i >= 0; --i) {
+                if (num & mask) cnt[i]++;
+                mask <<= 1;
+            }
+        }
+        int res = 0;
+        for (int i = 0; i < 32; ++i) {
+            res <<= 1;      // 必须先左移，否则结果最后会多移一位，变成2倍的值
+            res += cnt[i] % 3;   
+        }
+        return res;
+    }
+```
+
+* 还有一种更为玄学的操作，了解一下即可  
+```cpp
+    int singleNumber(vector<int>& nums) {
+        int once = 0, twice = 0;
+        for (auto num : nums) {
+            once = once ^ num & ~twice;
+            twice = twice ^ num & ~once;
+        }
+        return once;
+    }
+```
+
+和为s的两个数字
+===============
+[leetcode](https://leetcode-cn.com/problems/he-wei-sde-liang-ge-shu-zi-lcof/)
+输入一个递增排序的数组和一个数字s，在数组中查找两个数，使得它们的和正好是s。如果有多对数字的和等于s，则输出任意一对即可。
+### 解题思路
+* 既然题目中已经给出了增序数列，一般考的就是二分搜索
+```cpp
+    vector<int> twoSum(vector<int>& nums, int target) {
+        for (auto num : nums) {
+            int res = qsort(nums, target - num);
+            if (res > 0) return {num , res};
+        }
+        return {};
+    }
+
+    int qsort(vector<int>& nums, int target) {
+        int left = 0, right = nums.size() - 1;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] == target) return target;
+            else if (nums[mid] > target) right = mid;
+            else left = mid + 1;
+        }
+        return -1;
+    }
+```
+ * 或者两头使用双指针法遍历
+ 
+```cpp
+    vector<int> twoSum(vector<int>& nums, int target) {
+        int left = 0, right =nums.size() - 1;
+        while (left < right) {
+            if (nums[left] + nums[right] > target) right--;
+            else if (nums[left] + nums[right] == target) return {nums[left],nums[right]};
+            else left++;
+        }
+        return {};
+    }
+```
+
+和为s的连续正数序列
+===================
+[leetcode](https://leetcode-cn.com/problems/he-wei-sde-lian-xu-zheng-shu-xu-lie-lcof/)
+输入一个正整数 `target` ，输出所有和为 `target` 的连续正整数序列（至少含有两个数）。
+序列内的数字由小到大排列，不同序列按照首个数字从小到大排列。
+### 解题思路
+* 类似与找连续字串的问题，都要想到滑动窗口思想
+* 右指针一直往后移动，知道窗口内的和大于等于`target`,如果等于`target`就存入结果中，如果大于就移动左指针。
+```cpp
+   vector<vector<int>> findContinuousSequence(int target) {
+        int left = 1, right = 1;
+        vector<vector<int>> res;
+        while (right < target) {
+            while ((left + right) * (right - left + 1) / 2 < target) {
+                right++;
+            }
+            if ((left + right) * (right - left + 1) / 2 == target) {
+                vector<int> ret;
+                for (int i = left; i <= right; ++i) {
+                    ret.push_back(i);
+                }
+                res.push_back(ret);
+            }
+            left++;
+        }
+        return res;
+    }
+```
+
+翻转单词顺序
+============
+[leetcode](https://leetcode-cn.com/problems/fan-zhuan-dan-ci-shun-xu-lcof/)输入一个英文句子，翻转句子中单词的顺序，但单词内字符的顺序不变。为简单起见，标点符号和普通字母一样处理。例如输入字符串"I am a student. "，则输出"student. a am I"。
+### 示例
+```
+输入: "the sky is blue"
+输出: "blue is sky the"
+```
+### 解题思路
+* 反转类型的题，首先想到用栈
+* 遍历字符串，分割字符串并生成字符串模板，字符串入栈。
+```cpp
+    string reverseWords(string s) {
+        stack<string> sck;
+        for (int i = 0; i < s.size(); ++i) {    
+            string str;
+            while (i < s.size() && !isblank(s[i])) {
+                str += s[i];
+                ++i;
+            }
+            if (!str.empty()) sck.push(str);    // 防止空串入栈
+        }
+        string res = "";
+        while (!sck.empty()) {
+            res = res + sck.top() + ' ';
+            sck.pop();
+        }
+        if(!res.empty()) res.pop_back();    // 防止弹出空字符串
+        return res;
+    }
+```
+
+左旋转字符串
+=============
+[leetcode](https://leetcode-cn.com/problems/zuo-xuan-zhuan-zi-fu-chuan-lcof/)字符串的左旋转操作是把字符串前面的若干个字符转移到字符串的尾部。请定义一个函数实现字符串左旋转操作的功能。比如，输入字符串"abcdefg"和数字2，该函数将返回左旋转两位得到的结果"cdefgab"。
+### 示例
+```
+输入: s = "abcdefg", k = 2
+输出: "cdefgab"
+```
+
+### 解题思路
+* 因为只是互换位置，字串的长度没有变化，从位置k开始遍历，如果超过len就对`len`取模，形成从头循环。
+```cpp
+    string reverseLeftWords(string s, int n) {
+        int len = s.size();
+        string res = "";
+        for (int i = 0; i < len; ++i) {
+            res += s[(n + i) % len];
+        }
+        return res;
+    }
+```
+* 偷懒的方式直接使用库函数strstr()提取子串
+* `strstr(int begin, int end)` 注意end指最后一位字母的后一位索引。
+```cpp
+    string reverseLeftWords(string s, int n) {
+        return s.substr(n, s.size()) + s.substr(0, n);
+    }
+```
+
+滑动窗口的最大值
+==================
+[leetcode](https://leetcode-cn.com/problems/hua-dong-chuang-kou-de-zui-da-zhi-lcof/)
+给定一个数组 nums 和滑动窗口的大小 k，请找出所有滑动窗口里的最大值。
+### 示例
+```
+输入: nums = [1,3,-1,-3,5,3,6,7], 和 k = 3
+输出: [3,3,5,5,6,7] 
+解释: 
+
+  滑动窗口的位置                最大值
+---------------               -----
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+
+```
+### 解题思路
+* 维护一个单调队列，队列头部一直保存窗口里的最大值，如果窗口右移时，窗口左边界正好丢弃的是最大值，那么单调队列头部出列。
+* 正常窗口右边界加入的数字都要依次与队列队尾部比较，进加入的数更大，就不断让它往前走，保持队列一直是单调递减的。
+* 注意窗口左右边界的运动范围，`1 - k < left < n - k + 1` 和  `0 < right < n` 两个指针同时运动。
+```cpp
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        if (nums.size() == 0 || k == 0) return {};
+        deque<int> que;
+        vector<int> res;
+        for (int left = 1 - k, right = 0; right < nums.size(); ++left, ++right) {
+            // 删除得元素等于队首元素时，弹出队首 因为left - 1为弹出的元素，所以left指针不能 = 0.
+            if (left > 0 && que.front() == nums[left - 1]) que.pop_front();
+            // 保持队列单调递减
+            while (!que.empty() && nums[right] > que.back()) que.pop_back();
+            que.push_back(nums[right]);
+            if (left >= 0) res.push_back(que.front()); // left = 0以后才形成窗口，才有最大值出现。
+        }
+        return res;
+    }
+```
+
+
+队列的最大值
+============
+[leetcode](https://leetcode-cn.com/problems/dui-lie-de-zui-da-zhi-lcof/)
+请定义一个队列并实现函数 max_value 得到队列里的最大值，要求函数max_value、push_back 和 pop_front 的均摊时间复杂度都是O(1)。
+若队列为空，pop_front 和 max_value 需要返回 -1
+### 解题思路
+* 维护两个队列，一个存储正常的数据，一个维护当前最大值的队列
+* 单调队列：新加入的数组必须不断与队尾比较，直到找到他合适的位置，队列一直时单调递减的
+* 删除元素时，相等时同时弹出两个队列头部。
+```cpp
+class MaxQueue {
+public:
+    queue<int> data;
+    deque<int> maxque;
+    MaxQueue() {}
+    
+    int max_value() {
+        if(!maxque.empty()) return maxque.front();
+        return -1;
+    }
+    
+    void push_back(int value) {
+        while (!maxque.empty() && value > maxque.back()) maxque.pop_back();
+        data.push(value);
+        maxque.push_back(value);
+    }
+    
+    int pop_front() {
+        if (data.empty()) return -1;
+        int res = data.front();
+        if (res == maxque.front()) maxque.pop_front();
+        data.pop();
+        return res;
+    }
+};
+```
+
+
+
+ 
+ 
+ 
 
