@@ -61,7 +61,9 @@
 * [59.左旋转字符串](#左旋转字符串)
 * [60.滑动窗口的最大值](#滑动窗口的最大值)
 * [61.队列的最大值](#队列的最大值)
-
+* [62.n个骰子的点数](#n个骰子的点数)
+* [63.扑克牌中的顺子](#扑克牌中的顺子)
+* [64.圆圈中最后剩下的数字](#圆圈中最后剩下的数字)
 
 
 
@@ -2109,9 +2111,111 @@ public:
 };
 ```
 
+n个骰子的点数
+==============
+[leetcode](https://leetcode-cn.com/problems/nge-tou-zi-de-dian-shu-lcof/)
+把n个骰子扔在地上，所有骰子朝上一面的点数之和为s。输入n，打印出s的所有可能的值出现的概率。
+你需要用一个浮点数数组返回答案，其中第 i 个元素代表这 n 个骰子所能掷出的点数集合中第 i 小的那个的概率。
+### 示例
+```
+输入: 2
+输出: [0.02778,0.05556,0.08333,0.11111,0.13889,0.16667,0.13889,0.11111,0.08333,0.05556,0.02778]
+```
+### 解题思路
+* 二维的动态规划问题
+* 首先了解概率问题都是统计次数，最后除以总次数，所以问题转化为，投掷n个骰子，所有点数出现的总次数是6^n，因为每个骰子点数都有6种可能
+* 我们的目的就是 计算出投掷完 n 枚骰子后每个点数出现的次数。
+* 单单看第 n 枚骰子，它的点数可能为 1~6因此投掷完 n 枚骰子后点数 j 出现的次数，可以由投掷完 n-1枚骰子后，对应点数 j-1, j-2, j-3, ... , j-6 出现的次数之和转化过来。
+* 状态转移方程：`dp[n][j]= dp[n-1][j-1] + dp[n-1][j-2] + dp[n-1][j-3] + dp[n-1][j-4] + dp[n-1][j-5] + dp[n-1][j-6]`
+* 边界处理:投掷完 1枚骰子后，它的可能点数分别为 1, 2, 3, ... , 6并且每个点数出现的次数都是 1
+```cpp
+    vector<double> twoSum(int n) {
+        vector<vector<int>> dp(n + 1, vector<int>(6 * n + 1, 0));
+        for (int i = 1; i <= 6; ++i) 
+            dp[1][i] = 1;
+        
+        for (int i = 2; i <= n; ++i) {				// i: 投掷i个骰子
+            for (int j = i; j <= 6 * i ; ++j) {     // j: 点数和的范围
+                for (int k = 1; k <= 6; ++k) {      // k: 1~6点数  
+                    if (j > k) dp[i][j] += dp[i - 1][j - k]; 
+                }
+            }
+        }
+        int total = pow(6, n);
+        vector<double> res;
+        for (int j = n; j <= 6 * n; ++j) {
+            res.push_back(dp[n][j] * 1.0 / total);
+        }
+        return res;
+    }
 
-
+```
  
  
- 
+扑克牌中的顺子
+===============
+[leetcode](https://leetcode-cn.com/problems/bu-ke-pai-zhong-de-shun-zi-lcof/)
+从扑克牌中随机抽5张牌，判断是不是一个顺子，即这5张牌是不是连续的。2～10为数字本身，A为1，J为11，Q为12，K为13，而大、小王为 0 ，可以看成任意数字。A 不能视为 14。
+### 示例
+```
+输入: [0,0,1,2,5]
+输出: True
+```
+### 解题思路
+* 因为0代表所有牌，所以只要找到数组中不连续的牌，看他们之间能允许插入几张牌才能使他们连续，最后与0牌的数量进行比较即可
+* 先递增排序，0会出现在前面，统计0出现的次数
+* 因为是递增排序，所以当前数字与后面的数字差大于1说明出现了不连续，如果需要插入0的个数大于已有的0个数，说明不能组成顺子
+* off等于0说明重复数字，不算顺子
+* 
+* off代表前后的偏差
+```cpp
+    bool isStraight(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        int cnt = 0;
+        int off = 0;
+        for (int i = 0; i < nums.size() - 1; ++i) {
+            if (nums[i] == 0) {
+                cnt++;
+                continue;
+            }
+            off = abs(nums[i] - nums[i + 1]);
+            if (off == 1) continue;
+            if (off == 0 || off - 1 > cnt ) return false;
+        }
+        return true;
+    }
+```
 
+圆圈中最后剩下的数字
+====================
+[leetcode](https://leetcode-cn.com/problems/yuan-quan-zhong-zui-hou-sheng-xia-de-shu-zi-lcof/)
+0,1,,n-1这n个数字排成一个圆圈，从数字0开始，每次从这个圆圈里删除第m个数字。求出这个圆圈里剩下的最后一个数字。
+例如，0、1、2、3、4这5个数字组成一个圆圈，从数字0开始每次删除第3个数字，则删除的前4个数字依次是2、0、4、1，因此最后剩下的数字是3。
+### 示例
+```
+输入: n = 5, m = 3
+输出: 3
+```
+### 解题思路
+* 普通人思路：通过新建一个链表来模拟操作，但是对于大数会出现超时
+* 模拟一个循环链表,n个数字，需要删除`n - 1`次
+* 注意list的erase删除操作，参数必须是迭代器，返回值也是迭代器，而且是删除元素后一个位置的迭代器。
+* 移动迭代器只能通过++自增操作。
+```cpp
+    int lastRemaining(int n, int m) {
+        list<int> myList;
+        for (int i = 0; i < n; ++i) 
+            myList.push_back(i);
+        n--;
+        auto it = myList.begin();
+        while (n--) {
+            for (int i = 0; i < m - 1; ++i) {
+                it++;
+                if (it == myList.end()) it = myList.begin();
+            }
+            it = myList.erase(it);
+            if (it == myList.end()) it = myList.begin();
+        }
+        return myList.front();
+    }
+```
