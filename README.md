@@ -33,5 +33,5 @@
 * [图]
 * [位运算](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E4%BD%8D%E8%BF%90%E7%AE%97.md)
 
-🎨[力扣周赛]()
+🎨[力扣周赛](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E5%8A%9B%E6%89%A3%E5%91%A8%E8%B5%9B.md)
 ===============
