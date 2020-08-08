@@ -132,6 +132,29 @@
         return false;
     }
 ```
+* 方法二：因为是有序数组，就想到二分查找，每一行都使用二分法找target,但是此方法没有利用列得有序性  
+```cpp
+    bool findNumberIn2DArray(vector<vector<int>>& matrix, int target) {
+        if (matrix.empty()) return false;
+        int row = matrix.size();
+        for (int i = 0; i < row; ++i) {
+            if (find(matrix, i, target)) return true;
+        }
+        return false;
+    }
+
+    bool find(vector<vector<int>>& matrix, int row, int target) {
+        if (matrix[row].empty()) return false;
+        int left = 0, right = matrix[0].size() - 1;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (matrix[row][mid] < target) left = mid + 1; 
+            else if (matrix[row][mid] > target) right = mid;
+            else if (matrix[row][mid] == target) return true;  
+        }
+        return matrix[row][left] == target;
+    }
+```
 
 替换空格
 ==============
@@ -146,7 +169,7 @@
 
 ### 解题思路
 * 方法1：遍历找到空格，删除空格，插入新字符
-* 方法2：创建空字符，遇到空格就push新字符，非空格push正常字符。
+
 ```cpp
     string replaceSpace(string s) {
         for (int i = 0; s[i] != '\0'; ++i) {
@@ -158,6 +181,7 @@
         return s;
     }
 ```
+* 方法2：使用额外空间，创建空字符，遇到空格就push新字符，非空格push正常字符。
 * 注意 `？a ：b`运算符中a和b必须属于同一类型，`“%20”`是const char*类型，而`ch`属于char类型，只能用以下形式来写。
 ```cpp
     string replaceSpace(string s) {
@@ -165,6 +189,45 @@
         for (char ch : s) 
             ans = (ch == ' ') ? ans + "%20" : ans + ch ;
         return ans;
+    }
+```
+
+```cpp
+    string replaceSpace(string s) {
+        int len = s.size();
+        string res;
+        for (int i = 0; i < len; ++i) {
+            if (s[i] == ' ') {
+                res += "%20";
+            } else {
+                res += s[i];
+            }
+        }
+        return res;
+    }
+```
+* 如果面试官要求不能使用额外得空间，实现原地修改，可以先统计空格数量，再原字符串后添加足够长得空间
+```cpp
+    string replaceSpace(string s) {
+        int len = s.size();
+        int cnt = 0;
+        for (int i = 0; i < len; ++i) {
+            if (s[i] == ' ') cnt++;
+        }
+        s += string(cnt * 2, ' ');
+        int p1 = s.size() - 1;
+        int p2 = len - 1;
+        while (p2 >= 0) {
+            if (s[p2] == ' ') {
+                s[p1--] = '0';
+                s[p1--] = '2';
+                s[p1--] = '%';
+            } else {
+                s[p1--] = s[p2];
+            }
+            p2--;
+        }
+        return s;
     }
 ```
 
