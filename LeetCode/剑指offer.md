@@ -255,6 +255,22 @@
         return res;
     } 
 ```
+* 用栈反转
+```cpp
+    vector<int> reversePrint(ListNode* head) {
+        stack<int> sck;
+        while (head) {
+            sck.push(head->val);
+            head = head->next;
+        }
+        vector<int> res;
+        while (!sck.empty()) {
+            res.push_back(sck.top());
+            sck.pop(); 
+        }
+        return res;
+    }
+```
 
 重建二叉树
 ==================
@@ -369,6 +385,8 @@
 一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。
 答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
 ### 解题思路
+* PS:为什么要模1000000007（跟我念，一，八个零，七）,int64位的最大值为2^63-1，用最大值模1000000007的结果求平方，不会在int64中溢出。
+所以在大数相乘问题中,相乘时两边都对1000000007取模，保存在int64里面不会溢出.
 * 建立dp数组建立跳到当前台阶的方法数，那么对于任意台阶，可以从他前一个台阶或者前两个台阶跳到，状态方程为：'dp[i] = dp[i - 1] + dp[i - 2]'  
 ```cpp
     int numWays(int n) {
@@ -382,6 +400,22 @@
         return dp[n];
     }
 ```
+* 节省空间的做法：
+```cpp
+    int numWays(int n) {
+        if (n == 0 || n == 1) return 1;
+        if (n == 2) return 2;
+        int first = 1;
+        int second = 2;
+        int res = 0;
+        for (int i = 2; i < n; ++i) {
+            res = (first + second) % 1000000007;
+            first = second;
+            second = res;
+        }
+        return res;
+    }
+```
 
 旋转数组的最小数字
 ==========
@@ -389,7 +423,7 @@
 把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。输入一个递增排序的数组的一个旋转，输出旋转数组的最小元素。例如，数组 [3,4,5,1,2] 为 [1,2,3,4,5] 的一个旋转，该数组的最小值为1。  
 ### 解题思路
 * 典型的二分查找，要查找的数左右两边的特点，他的左边都是大于数组的最后一个数，他的右边都是小于数组最后一个数。
-* 套二分查找的模板
+* 本题的不同之处在于存在重复数字，所以会出现mid所指与right所指之数相等，导致无法判断最小值出现在mid左边还是右边，因此需要删除一个重复值，暴力的缩小范围。`right--`
 ```cpp
     int minArray(vector<int>& nums) {
         int left = 0;
@@ -401,6 +435,17 @@
             else if (nums[mid] == nums[right]) right--;                           
         }
         return nums[left];
+    }
+```
+* 暴力法：遍历整个数组，如果发现后面一个数小于前面一个数，说明找到了分界点。
+* 如果没有找到分界点，说明整个数组都是一个数重复，就返回第一个数即可。
+```cpp
+    int minArray(vector<int>& numbers) {
+        for (int i = 0; i + 1 < numbers.size(); ++i) {
+            if (numbers[i] > numbers[i + 1]) 
+                return numbers[i + 1];
+        }
+        return numbers[0];
     }
 ```
 
