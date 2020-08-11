@@ -549,22 +549,19 @@ private:
 解释: 10 = 3 + 3 + 4, 3 × 3 × 4 = 36
 ```
 ### 解题思路
-(建了dp数组实际跟动规并没有任何关系）
-* 暴力解决  
+* 贪心+暴力解决  
 * 要想积最大，每段长度都尽量相等或接近就行，首先想到用平均值avg，如果平均下来有剩余值，就降剩余值再平均前面每个值上，就变avg + 1，所以最终分段完每段的长度不是avg就是avg + 1
 * 设分了m段,那么余数有多少，就有多少个avg + 1,剩下的就是avg
-* dp数组用于记录分m（2 ~ n)段得到得积，最后排序取最大值。
 * pow(int num, int exp);求乘方函数。
 ```cpp
     int cuttingRope(int n) {
-        vector<int> dp(n);
+        int res = 0;
         for (int m = 2; m <=n; ++m) {
             int avg = n / m; 
-            int ans = n % m ? pow(avg, m - n % m) * pow(avg + 1, n % m) : pow(avg, m);
-            dp.push_back(ans); 
+            int sum = n % m ? pow(avg, m - n % m) * pow(avg + 1, n % m) : pow(avg, m);
+            res = max(res, sum);
         }
-        sort(dp.begin(), dp.end());
-        return dp.back();
+        return res;
     }
 ```
 
@@ -576,7 +573,7 @@ private:
 ### 解题思路
 * 本题与上一题得区别在于存在大数操作，`2 <= n <= 1000`
 * 对于本题需要了解数学知识，要想使成绩最大化，就需要将绳子尽可能的多分段，因此每段长度有，1，2，3中长度考虑，1显然不行，2或3中，3更合适，因此此题就变为求3的幂操作。
-* 循环求幂：
+* 循环求幂：大数取余满足分配律，`(xy)⊙p=[(x⊙p)(y⊙p)]⊙p`
 ```cpp
     int cuttingRope(int n) {
         if (n == 2 || n == 3) return n -1;
