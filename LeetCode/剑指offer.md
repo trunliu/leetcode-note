@@ -573,6 +573,7 @@ private:
 ### 解题思路
 * 本题与上一题得区别在于存在大数操作，`2 <= n <= 1000`
 * 对于本题需要了解数学知识，要想使成绩最大化，就需要将绳子尽可能的多分段，因此每段长度有，1，2，3中长度考虑，1显然不行，2或3中，3更合适，因此此题就变为求3的幂操作。
+* 幂操作因为指数级别的增加，很容易溢出int32甚至int64，所以为了不让溢出，就需要对幂结果求余，采用分割后分别求余。
 * 循环求幂：大数取余满足分配律，`(xy)⊙p=[(x⊙p)(y⊙p)]⊙p`
 ```cpp
     int cuttingRope(int n) {
@@ -668,6 +669,19 @@ private:
     }
 ```
 
+* 使用递归思想，易理解,因为只有`n`在递归中发送变化，因此结束条件只考虑n的情况。
+```cpp
+    double myPow(double x, int n) {
+        if (n == 0) return 1;
+        if (n == 1) return x;
+        if (n == -1) return 1 / x;
+        double half = myPow(x, n / 2);
+        double mod = myPow(x, n % 2);
+        return half * half * mod;
+    }
+```
+
+
 打印从1到最大的n位数
 ========================
 [leetcode](https://leetcode-cn.com/problems/da-yin-cong-1dao-zui-da-de-nwei-shu-lcof/)
@@ -724,6 +738,7 @@ private:
 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数位于数组的前半部分，所有偶数位于数组的后半部分。
 ### 解题思路
 * 思路来自于快排的挖坑法，定义两个头尾指针，把最后一个数挖走，然后left指针遍历直到发现一个偶数，就把这个偶数挖走放到最后的坑里，再用right往前遍历，直到发现一个奇数，挖走放到前面那个坑里，直到俩个指针相遇，把坑不上即可。
+* 注意：如果将第一个数挖走，一开始就要从末尾开始遍历，如果挖走最后一个数，就要从左先开始遍历。
 ```cpp
     vector<int> exchange(vector<int>& nums) {
         if (nums.size() == 0) return {};
@@ -739,7 +754,21 @@ private:
         nums[left] = temp;
         return nums;
     }
-``
+```
+
+* 改进版,不需要挖坑了，而且只交换一次。
+```cpp
+    vector<int> exchange(vector<int>& nums) {
+        if (nums.empty()) return {};
+        int left = 0 ,right = nums.size() - 1;
+        while (left < right) {
+            while (left < right && (nums[right] & 1) == 0) right--;
+            while (left < right && (nums[left] & 1) == 1) left++;
+            swap(nums[left++], nums[right--]); 
+        }
+        return nums;
+    }
+```
 
 链表中倒数第k个节点
 ======================
