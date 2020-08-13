@@ -869,6 +869,51 @@ private:
     }
 ```
 
+* 一样的思路另一种写法，区别在于while循环大判断是`||`或.
+```cpp
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        ListNode* p1 = l1, p2 = l2;
+        ListNode* dummy = new ListNode(-1);
+        ListNode* cur = dummy;
+        while (p1 || p2) {
+            if (p1 == NULL) { 
+                cur->next = p2;
+                break;
+            }
+            if (p2 == NULL) {
+                cur->next = p1;
+                break;
+            }   
+            if (p1->val <= p2->val) {
+                cur->next = p1;
+                p1 = p1->next;
+            } else {
+                cur->next = p2;
+                p2 = p2->next;
+            }
+            cur = cur->next;
+        }
+        return dummy->next;
+    }
+```
+
+* 递归思想:先了解函数的意义是合并两个链表并返回合并后的头部节点，其次返回条件，函数的两个参数都会在
+递归过程中发生变化，因此结束条件有两个，其中一个为`null`表示其中一条遍历结束，直接返回另一条链表。
+```cpp
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        if (l1 == NULL) return l2;
+        if (l2 == NULL) return l1;
+
+        if (l1->val <= l2->val) {
+            l1->next = mergeTwoLists(l1->next, l2);
+            return l1;
+        } else {
+            l2->next = mergeTwoLists(l1, l2->next);
+            return l2;
+        }
+    }
+```
+
 树的子结构
 ================
 [leetcode](https://leetcode-cn.com/problems/shu-de-zi-jie-gou-lcof/)输入两棵二叉树A和B，判断B是不是A的子结构。(约定空树不是任意一个树的子结构)
@@ -925,6 +970,28 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         TreeNode* tmp = mirrorTree(root->left);
         root->left = mirrorTree(root->right);
         root->right = tmp;
+        return root;
+    }
+```
+
+* 能用递归就能用迭代法，对于深度递归一般使用栈，又由于翻转操作，我们需要先得到根节点，才能反转他的左右子树，
+因此采用栈数据结构的前序遍历的迭代法，先右节点入栈。交换操作也可以使用`swap()`代替。
+```cpp
+    TreeNode* mirrorTree(TreeNode* root) {
+        if (!root) return NULL;
+        stack<TreeNode*> sck;
+        sck.push(root);
+        TreeNode* cur = NULL;
+        while (!sck.empty()) {
+            cur = sck.top();
+            sck.pop();       
+            // swap(cur->left, cur->right)
+            TreeNode* tmp = cur->left;
+            cur->left = cur->right;
+            cur->right = tmp;
+            if (cur->right) sck.push(cur->right);
+            if (cur->left) sck.push(cur->left); 
+        }
         return root;
     }
 ```
