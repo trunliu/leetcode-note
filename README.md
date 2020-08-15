@@ -35,3 +35,6 @@
 
 🎨[力扣周赛](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E5%8A%9B%E6%89%A3%E5%91%A8%E8%B5%9B.md)
 ===============
+
+🚀[2021届秋招笔试题汇总](https://github.com/liuwentao1992/leetcode-note/blob/master/%E7%AC%94%E8%AF%95.md)
+====================
