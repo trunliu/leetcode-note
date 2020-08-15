@@ -1130,6 +1130,24 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
 ```cpp
     vector<int> levelOrder(TreeNode* root) {
         if (root == NULL) return {};
+        queue<TreeNode*> que;
+        que.push(root);
+        TreeNode* cur = NULL;
+        vector<int> res;
+        while (!que.empty()) {
+            cur = que.front();
+            que.pop();
+            res.push_back(cur->val);
+            if (cur->left) que.push(cur->left);
+            if (cur->right) que.push(cur->right);
+        }
+        return res;
+    }
+```
+* 队列可以实现先进先出，同样用链表也可以代替队列
+```cpp
+    vector<int> levelOrder(TreeNode* root) {
+        if (root == NULL) return {};
         vector<int> res;
         list<TreeNode*> List;
         List.push_back(root);
@@ -1144,6 +1162,7 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         return res;
     }
 ```
+
 
 从上到下打印二叉树II
 =======================
@@ -1185,6 +1204,24 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
             res.push_back(level);
         }
         return res;
+    }
+```
+
+* DFS递归法.前序遍历总体来看是从左到右的遍历，因此遍历到某个节点时将其插入到对应高度的结果数组中。
+* 因为无法提前知道层高，就需要再遍历的过程中，先判断当前层数在结果数组中是否已经开辟了空间。如果没有就再新建一行数组空间。
+```cpp
+    vector<vector<int>> res;
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        dfs(root, 0);
+        return res;
+    }
+
+    void dfs(TreeNode* root, int depth) {
+        if (!root) return;
+        if(depth == res.size()) res.emplace_back(vector<int>());   // 新建一行
+        res[depth].emplace_back(root->val);
+        dfs(root->left, depth + 1);
+        dfs(root->right, depth + 1);
     }
 ```
 
@@ -1235,6 +1272,29 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
     }
 ```
 
+* dfs递归思想，每层使用list链表的数据结构，这样可以头插法，相当反转一个数组。
+* 最后将链表转为为数组再输出
+```cpp
+    vector<list<int>> res;
+    vector<vector<int>> ans;
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        dfs(root, 0);
+        ans.resize(res.size());
+        for (int i = 0; i < res.size(); ++i) 
+            for (auto it : res[i]) ans[i].emplace_back(it);
+        return ans;
+    }
+
+    void dfs(TreeNode* root, int depth) {
+        if (!root) return;
+        if (depth == res.size()) res.emplace_back(list<int>());
+        if (depth & 1) res[depth].emplace_front(root->val);
+        else res[depth].emplace_back(root->val);
+        dfs(root->left, depth + 1);
+        dfs(root->right, depth + 1);
+    }
+```
+
 二叉搜索树的后序遍历序列
 ====================================
 [leetcode](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-de-hou-xu-bian-li-xu-lie-lcof/)
@@ -1276,6 +1336,7 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         return dfs(postorder, left , mid - 1) && dfs(postorder, mid, right - 1);
     }
 ```
+
 
 二叉树中和为某一值的路径
 ====================================
@@ -1332,48 +1393,37 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
 * 链接随机指针时：先查原表当前结点随机指针指得是第几个结点，再根据下标查新表获取新结点地址，再链接。
 ````cpp
     Node* copyRandomList(Node* head) {
+        if (!head) return NULL;
         Node* cur = head;
-        // 求长度
-        int len = 0;
+        map<Node*, int> idx;
+        map<int, Node*> ptr;   
+        int cnt = 0;
+        Node* dummy = new Node(-1);		//链接链表一定需要前驱
+        Node* pre = dummy;
         while (cur) {
-            len++;
-            cur = cur->next;
-        }
-        
-        unordered_map<Node*, int> oldmap(len);
-        unordered_map<int, Node*> newmap(len);
-        
-        int index = 0;
-        Node* newListDummy = new Node(-1); // 新链表头节点
-        Node* curr = newListDummy;         // 新链表遍历指针
-        cur = head;
-        while (cur) {
-            // 新建结点
+            idx[cur] = cnt;
             Node* newNode = new Node(cur->val);
-            curr->next = newNode;
-            // 建表
-            newmap[index] = newNode;
-            oldmap[cur] = index;
-            index++;
-            // 遍历
-            curr = curr->next;
-            cur = cur->next;
+            ptr[cnt] = newNode;
+            pre->next = newNode;
+            pre = pre->next;
+            cur = cur->next;   
+            cnt++;
         }
-        
-        // 同步遍历、链接random
-        curr = newListDummy->next;
+        pre->next = NULL;
+
         cur = head;
-        while (cur) {
+        Node* curr = dummy->next;
+        while (cur) {					// 同步遍历链接random指针
             if (cur->random) {
-                int idx = oldmap[cur->random];
-                curr->random = newmap[idx];
+                int index = idx[cur->random];
+                curr->random = ptr[index];
             } else {
                 curr->random = NULL;
             }
-            curr = curr->next;
             cur = cur->next;
+            curr = curr->next;
         }
-        return newListDummy->next;
+        return dummy->next;
     }
 ````
 
@@ -1382,28 +1432,29 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
 [leetcode](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof/)
 输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的循环双向链表。要求不能创建任何新的节点，只能调整树中节点指针的指向。
 ### 解题思路
-* 链表得链接一定是往前链接，所以需要维护一个指向上一个结点得指针`last`
+* 链表得链接一定是往前链接，所以需要维护一个指向上一个结点得指针`pre`
 * 因为是一个搜索树，所以选择中序遍历,就是从小到大排好序得。
-* 当遍历完后，last指针正好指向最后一个结点，将其与第一个结点进行链接。
-
+* 当遍历完后，pre指针正好指向最后一个结点，将其与第一个结点进行链接。
+* 注意：用一个全局变量来记录遍历过程中的上一个节点。
+* 注意：root节点不是第一个链表的第一节点，head->right才是.
 ````cpp
-    Node* last = NULL; //上一个结点
+    Node* pre = NULL; //上一个结点
     Node* treeToDoublyList(Node* root) {
         if (!root) return NULL;
         Node* head = new Node(-1);
-        last = head;
+        pre = head;
         inorder(root);
-        last->right = head->right;
-        head->right->left = last;
+        pre->right = head->right;
+        head->right->left = pre;
         return head->right;
     }
 
     void inorder(Node* root) {
         if (!root) return;
         inorder(root->left);
-        last->right = root;
-        root->left = last;
-        last = root;
+        pre->right = root;
+        root->left = pre;
+        pre = root;
         inorder(root->right);
     }
 ````
