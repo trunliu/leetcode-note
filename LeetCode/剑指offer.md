@@ -1708,6 +1708,24 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
     }
 ```
 
+* 计数排序解决topK问题
+```cpp
+    vector<int> getLeastNumbers(vector<int>& arr, int k) {
+        int cnt[10001];
+        memset(cnt, 0, sizeof(int) * 10001);
+        for (auto num : arr) {
+            cnt[num]++;
+        }
+        vector<int> res;
+        for (int i = 0; i < 10001; ++i) {
+            while (cnt[i]-- && res.size() < k)
+                res.push_back(i);
+            if (res.size() == k) break;
+        }
+        return res;
+    }
+```
+
 连续子数组的最大和
 ======================
 {leetcode](https://leetcode-cn.com/problems/lian-xu-zi-shu-zu-de-zui-da-he-lcof/)输入一个整型数组，数组里有正数也有负数。数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。
