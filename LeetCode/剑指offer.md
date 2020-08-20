@@ -1634,6 +1634,37 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         }
     }
 ```
+* 修改版。
+```cpp
+    vector<bool> isVis;
+    string s;
+    vector<string> res;
+    vector<string> permutation(string s) {
+        this->s = s;
+        isVis.resize(s.size(), false);
+        string path;
+        for (int i = 0; i < s.size(); ++i) {
+            dfs(i, path);
+        }
+        unordered_set set(res.begin(), res.end());
+        res.assign(set.begin(), set.end());
+        return res;
+    }
+
+    void dfs(int root, string& path) {
+        if (isVis[root]) return;
+        isVis[root] = true;
+        path += s[root];
+        if (path.size() == s.size()) {
+            res.push_back(path);
+        }
+        for (int i = 0; i < s.size(); ++i) {
+            dfs(i, path);
+        }
+        isVis[root] = false;
+        path.pop_back();
+    }
+```
 
 数组中出现次数超过一半的数字
 =============================
@@ -1764,6 +1795,71 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         return maxSum;
     }
 ```
+* 正常不用技巧
+```cpp
+    int maxSubArray(vector<int>& nums) {
+        int n = nums.size();
+        int cur = 0;
+        int pre = nums[0];
+        int MAX = nums[0];
+        for (int i = 1; i < n; ++i) {
+            cur = nums[i];
+            cur = max(cur + pre, cur);
+            MAX = max(MAX, cur);
+            pre = cur;
+        }
+        return MAX;
+    }
+```
+
+1～n整数中1出现的次数
+=======================
+[leetcode](https://leetcode-cn.com/problems/1nzheng-shu-zhong-1chu-xian-de-ci-shu-lcof/)
+输入一个整数 n ，求1～n这n个整数的十进制表示中1出现的次数。
+例如，输入12，1～12这些整数中包含1 的数字有1、10、11和12，1一共出现了5次。
+### 解题思路
+* 正常思路,对每个数循环取余计算1出现的个数，但是会超时。
+```cpp
+    int countDigitOne(int n) {
+        int res = 0; 
+        for (int i = 1; i <= n; ++i) 
+            res += count(i);
+        return res;
+    }
+
+    int count(int num) {
+        int cnt = 0;
+        while (num) {
+            cnt += (num % 10 == 1);
+            num /= 10;
+        }
+        return cnt;
+    }
+```
+* 快速的方法是，直接根据n，统计十进制n中每个位出现1的次数，这样这需遍历n的位数次就能求出结果。
+* 需要找到每位出现次数的规律：对于个位只有0~9,1只出现1次，十位0~99会出现10次，百位0~999会出现100次，因此每位出现1的次数与他的位数`digit`有关
+* 如果当前位是0的话，例如2304的十位出现1的次数为：因为十位数有`0~99`,十位会出现`10`次1，而`0~99`出现的次数又是`23`次,因此1出现的总次数为：`23 * 10 = 230`，公式:`high * dight`
+* 如果当前位是1的话，例如2314，在2304的基础上，在加上 `10，11，12，13，14` 5 个，即 `23 * 10 + 4 + 1` 公式:`high * digit + low + 1`
+* 如果当前位是2的话，例如2324, 在2304的基础上，在加上完整的10的是个数`10,12,13,14,15,16,17,18,19`即`23 * 10 + 10` 公式：`high + digit + dight`
+* 结束条件：cur遍历完所有的位后。
+```cpp
+    int countDigitOne(int n) {
+        int high = n / 10, cur = n % 10, low = 0;
+        long digit = 1;
+        int cnt = 0;
+        while (high || cur) {   // 只有同时为0时才结束
+            if (cur == 0) cnt += high * digit;
+            else if (cur == 1) cnt += high * digit + low + 1;
+            else cnt += (high + 1) * digit;
+            low += cur * digit;
+            cur = high % 10;
+            high /= 10;
+            digit *= 10;
+        }
+        return cnt;
+    }
+```
+
 
 把数组排成最小的数
 ======================
