@@ -489,6 +489,50 @@ private:
         return false;
     }
 ```
+* 第二版解题思路，类似此类问题：通过dfs在多条路径中寻找其中一条满足条件的路径。
+* 注意：第一次通过遍历先发现头节点，再根据次节点展开深度递归，记录路径长度或者储存路径信息的变量都要再每次dfs前重新定义。
+* 注意：每次递归完要恢复isVis标志位。
+* dfs模板：先判断是否已经访问，再写递归结束的条件，最后只有满足一定条件的子节点才进行dfs。
+```cpp
+    int off[4][2] = {{1,0}, {-1,0}, {0, 1}, {0, -1}};
+    vector<vector<bool>> isVis;
+    string word;
+    vector<vector<char>> board;
+    int row;
+    int col;
+    bool exist(vector<vector<char>>& board, string word) {
+        row = board.size();
+        col = board[0].size();
+        this->isVis.resize(row, vector<bool>(col, false));
+        this->board = board;
+        this->word = word;
+        
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                if (board[i][j] == word[0]) {
+                    int depth = 0;
+                    if(dfs(i, j, depth)) return true;
+                }  
+            }
+        }
+        return false;
+    }
+
+    bool dfs(int x, int y, int depth) {
+        if (isVis[x][y]) return false;
+        isVis[x][y] = true;
+        cout << board[x][y];
+        if (depth == word.size() - 1) return true;
+        for (int i = 0; i < 4; ++i) {
+            int m = x + off[i][0];
+            int n = y + off[i][1];
+            if (m < row && m >= 0 && n < col && n >= 0 && board[m][n] == word[depth + 1])
+                if (dfs(m, n, depth + 1)) return true;
+        }
+        isVis[x][y] = false;
+        return false;
+    }
+```
 
 
 机器人的运动范围
@@ -499,6 +543,7 @@ private:
 * 此题的难度在于理解上面，并不是暴力的遍历全部结点，判断哪个符合条件，因为题目时运动范围即，所以符合要求的结点都时连接在一起的。
 * 因为数组中的值仅仅为两位数，因此' x / 10 + x %10'就是个位与十位的数位和
 * 这里用了一个二维数组记录访问过的结点，一定要初始化二维数组。
+* 因为本题求得是机器人得运动范围，不是求某一最长得路径，因此再dfs结束后不需要回复isVis数组。
 ```cpp
     int cnt = 0;
     int m, n, k;
@@ -584,6 +629,28 @@ private:
             n -= 3;
         }
         return res * n % 1000000007;
+    }
+```
+* 方法二，用贪心+快速幂指法
+```cpp
+    int cuttingRope(int n) {
+        if (n == 2 || n == 3) return n - 1;
+        int a = n / 3;
+        int b = n % 3;
+        if (b == 2) return quickPow(3, a) * 2 % 1000000007;
+        else return quickPow(3, a - 1) * (b + 3) % 1000000007; 
+    }
+
+    long quickPow(int x, int n) {
+        long res = 1;
+        long t = x;
+        while (n) {
+            if (n & 1) 
+                res = res * t % 1000000007;
+            t = t * t % 1000000007;
+            n /= 2;
+        }
+        return res;
     }
 ```
 
