@@ -40,7 +40,7 @@
 * [38.最小的k个数](#最小的k个数)
 * [39.连续子数组的最大和](#连续子数组的最大和)
 * [40.连续子数组的最大和]()
-* [41.1～n整数中1出现的次数]()
+* [41.1～n整数中1出现的次数](#1～n整数中1出现的次数)
 * [42.把数组排成最小的数](#把数组排成最小的数)
 * [43.把数字翻译成字符串](#把数字翻译成字符串)
 * [44.礼物的最大价值](#礼物的最大价值)
@@ -71,7 +71,7 @@
 * [69.把字符串转换成整数](#把字符串转换成整数)
 * [70.二叉搜索树的最近公共祖先](#二叉搜索树的最近公共祖先)
 * [71.二叉树的最近公共祖先](#二叉树的最近公共祖先)
-
+* [72.数字序列中某一位的数字](#数字序列中某一位的数字)
 
 
 数组中重复的数字
@@ -1460,36 +1460,34 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
 * 链接随机指针时：先查原表当前结点随机指针指得是第几个结点，再根据下标查新表获取新结点地址，再链接。
 ````cpp
     Node* copyRandomList(Node* head) {
-        if (!head) return NULL;
+        unordered_map<Node*, int> idx;
+        unordered_map<int, Node*> addr;
+
         Node* cur = head;
-        map<Node*, int> idx;
-        map<int, Node*> ptr;   
-        int cnt = 0;
-        Node* dummy = new Node(-1);		//链接链表一定需要前驱
+        Node* dummy = new Node(-1);
         Node* pre = dummy;
+        int i = 0;
         while (cur) {
-            idx[cur] = cnt;
-            Node* newNode = new Node(cur->val);
-            ptr[cnt] = newNode;
-            pre->next = newNode;
+            idx[cur] = i;
+            Node* node = new Node(cur->val);
+            addr[i] = node;
+            pre->next = node;
             pre = pre->next;
-            cur = cur->next;   
-            cnt++;
+            cur = cur->next;
+            i++;
         }
         pre->next = NULL;
 
         cur = head;
         Node* curr = dummy->next;
-        while (cur) {					// 同步遍历链接random指针
-            if (cur->random) {
-                int index = idx[cur->random];
-                curr->random = ptr[index];
-            } else {
+        while (cur) {
+            if (cur->random)
+                curr->random = addr[idx[cur->random]];
+            else 
                 curr->random = NULL;
-            }
             cur = cur->next;
             curr = curr->next;
-        }
+        } 
         return dummy->next;
     }
 ````
@@ -1909,6 +1907,7 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
 * 如果当前位是1的话，例如2314，在2304的基础上，在加上 `10，11，12，13，14` 5 个，即 `23 * 10 + 4 + 1` 公式:`high * digit + low + 1`
 * 如果当前位是2的话，例如2324, 在2304的基础上，在加上完整的10的是个数`10,12,13,14,15,16,17,18,19`即`23 * 10 + 10` 公式：`high + digit + dight`
 * 结束条件：cur遍历完所有的位后。
+* 注意更新low cur high digit的先后顺序不能错
 ```cpp
     int countDigitOne(int n) {
         int high = n / 10, cur = n % 10, low = 0;
@@ -1926,6 +1925,30 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         return cnt;
     }
 ```
+
+数字序列中某一位的数字
+======================
+[leetcode](https://leetcode-cn.com/problems/shu-zi-xu-lie-zhong-mou-yi-wei-de-shu-zi-lcof/submissions/)数字以0123456789101112131415…的格式序列化到一个字符序列中。在这个序列中，第5位（从下标0开始计数）是5，第13位是1，第19位是4，等等。
+请写一个函数，求任意第n位对应的数字。
+### 解题思路
+* 先确定n所指的数字是几位数，通过循环相减确定所在哪个区间。
+* 再确定n所指的数字是什么，通过起始值加偏移量确定数子
+* 最后确定n所指的位于数字的第几位，通过取余确定
+* 最后为了方便取出数字的第几位，先转换为字符串，取出后再转换为整型。
+```cpp
+    int findNthDigit(int n) {
+        long digit = 1, start = 1, cnt = 9;
+        while (n > cnt) {
+            n -= cnt;
+            digit += 1;
+            start *= 10;
+            cnt = digit * start * 9;
+        }
+        int num = start + (n - 1) / digit;
+        return to_string(num)[(n - 1) % digit] - '0';
+    }
+```
+
 
 
 把数组排成最小的数
@@ -2874,7 +2897,7 @@ int sumNums(int n) {
             if (str[i] >= '0' && str[i] <= '9') {      
                 if (res > INT_MAX / 10 || (res == INT_MAX / 10 && str[i] > '7')) 
 					return isNeg == true ? INT_MIN : INT_MAX;    // 数字边界处理
-                res = res * 10 + (str[i] - '0'); 
+                res = res * 10 + (str[i] - '0'); 	// 括号不能省，因为可能会溢出
                 
             } else return isNeg == true ? -res : res;       // 不是数字直接返回前面转换得数字结果 
             i++;
