@@ -2033,6 +2033,26 @@ class Solution:
     }
 ```
 
+* 改进版：用string替换数组数据结构
+```cpp
+    bool help(string num, int i) {
+        if (num[i - 1] == '1' || (num[i - 1] == '2' && num[i] < '6')) return true;
+        return false;
+    }
+
+    int translateNum(int num) {
+        if (num < 10) return 1;
+        string n = to_string(num);
+        vector<int> dp(n.size());
+        dp[0] = 1;
+        dp[1] = help(n, 1) ? 2 : 1;
+        for (int i  = 2; i < n.size(); ++i) {
+            dp[i] = help(n, i) ? dp[i - 1] + dp[i - 2] : dp[i - 1];
+        }
+        return dp.back();
+    }
+```
+
 礼物的最大价值
 ===================
 [leetcode](https://leetcode-cn.com/problems/li-wu-de-zui-da-jie-zhi-lcof/)在一个 m*n 的棋盘的每一格都放有一个礼物，每个礼物都有一定的价值（价值大于 0）。你可以从棋盘的左上角开始拿格子里的礼物，并每次向右或者向下移动一格、直到到达棋盘的右下角。给定一个棋盘及其上面的礼物的价值，请计算你最多能拿到多少价值的礼物？
@@ -2106,6 +2126,25 @@ class Solution:
     }
 ```
 
+* 或者使用set来判断是否出现重复数字，记住set的常用操作，`emplace(), erase(), find()`  
+```cpp
+    int lengthOfLongestSubstring(string s) {
+        int left = 0, right = 0;
+        int longest = 0;
+        int n = s.size();
+        unordered_set<char> ch;
+        while (right < n) {
+            while (ch.find(s[right])  == ch.end() && right < n ) {
+                longest = max(longest, right - left + 1);
+                ch.emplace(s[right]);
+                right++;
+            }
+            ch.erase(s[left]);  // 此处容易写成right 必须在left++前
+            left++;
+        }
+        return longest;
+    }
+```
 
 丑数
 =============
