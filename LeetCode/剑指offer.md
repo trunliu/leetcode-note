@@ -310,6 +310,7 @@
         TreeNode* root = new TreeNode(pre[pre_root]);
         int in_root = idHash[pre[pre_root]];
         root->left = buildTree(pre_root + 1, in_left, in_root - 1);
+		// 左节点个数是：in_root - in_left + 1 经常容易写错
         root->right = buildTree(pre_root + in_root - in_left + 1, in_root + 1, in_right);
         return root;
     }
@@ -491,7 +492,7 @@ private:
 ```
 * 第二版解题思路，类似此类问题：通过dfs在多条路径中寻找其中一条满足条件的路径。
 * 注意：第一次通过遍历先发现头节点，再根据次节点展开深度递归，记录路径长度或者储存路径信息的变量都要再每次dfs前重新定义。
-* 注意：每次递归完要恢复isVis标志位。
+* 注意：每次递归完要恢复isVis标志位。只有一种情况不需要恢复就是，只从一个节点开始dfs，只需要找到一条满足的路径即可，不需要回溯。
 * dfs模板：先判断是否已经访问，再写递归结束的条件，最后只有满足一定条件的子节点才进行dfs。
 ```cpp
     int off[4][2] = {{1,0}, {-1,0}, {0, 1}, {0, -1}};
