@@ -1945,7 +1945,7 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
             start *= 10;
             cnt = digit * start * 9;
         }
-        int num = start + (n - 1) / digit;
+        int num = start + (n - 1) / digit;	// 括号不能省 n-1 是因为从0开始不是从1开始，减去0
         return to_string(num)[(n - 1) % digit] - '0';
     }
 ```
