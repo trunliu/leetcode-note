@@ -2159,7 +2159,7 @@ class Solution:
 ### 解题思路
 * 此题本质上可以看做是合并三个有序序列，因为丑数序列就是合并后去重而已。
 * 因为丑数是前面的丑数乘以2或3或5形成的，因此最终的丑数序列一定是`丑数序列 * 2  丑数序列 * 3  丑数序列 * 5`合并去重后得到的。
-* 要无重复的合并三个有序序列，每个学历都需要一个指针，比较三指针所指取最小值加入到丑数序列中，最小值的那个指针后移一位
+* 要无重复的合并三个有序序列，每个序列都需要一个指针，比较三指针所指取最小值加入到丑数序列中，最小值的那个指针后移一位
 * 当2个序列指针所指都是最小的。那么这2个序列指针同时后移
 ```cpp
     int nthUglyNumber(int n) {
@@ -2943,6 +2943,22 @@ int sumNums(int n) {
             i++;
         }
         return isNeg == true ? -res : res;
+    }
+```
+* 如果用能用long，比较麻烦，因为res可以超过int的界限，所以再返回答案之前都需要先判断res是否越界。
+```cpp
+	....前面都一样
+        long res  = 0;
+        for (; i < str.size(); ++i) {
+            if (res > INT_MAX || res < INT_MIN) return isNeg ? INT_MIN : INT_MAX;
+            if (str[i] >= '0' && str[i] <= '9') {
+                res = res * 10 + (str[i] - '0');
+                continue;
+            }
+            return isNeg ? -res : res;
+        }
+        if (res > INT_MAX || res < INT_MIN) return isNeg ? INT_MIN : INT_MAX;
+        return isNeg ? -res : res;
     }
 ```
 
