@@ -18,7 +18,7 @@
 * [贪心思想](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E8%B4%AA%E5%BF%83%E6%80%9D%E6%83%B3.md)
 * [二分查找](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E4%BA%8C%E5%88%86%E6%B3%95.md)
 * [分治]
-* [搜索]
+* [搜索](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E6%90%9C%E7%B4%A2.md)
 * [动态规划](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92.md)
 * [数学](https://github.com/liuwentao1992/leetcode-note/blob/master/LeetCode/%E6%95%B0%E5%AD%A6.md)
 
