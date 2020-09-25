@@ -2744,7 +2744,6 @@ n个骰子的点数
 * 先递增排序，0会出现在前面，统计0出现的次数
 * 因为是递增排序，所以当前数字与后面的数字差大于1说明出现了不连续，如果需要插入0的个数大于已有的0个数，说明不能组成顺子
 * off等于0说明重复数字，不算顺子
-* 
 * off代表前后的偏差
 ```cpp
     bool isStraight(vector<int>& nums) {
@@ -3102,8 +3101,36 @@ int sumNums(int n) {
         return NULL;
     }
 ```
+* 另一种思路：前序遍历记录从根节点到qp结点的两条路径，然后路径逐个比较，最后一个相同的结点即为最近公共结点。
+```cpp
+    vector<vector<TreeNode*>> path;
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        vector<TreeNode*> path1;
+        vector<TreeNode*> path2;
+        getPath(root, p, path1);
+        getPath(root, q, path2);
+        
+        int n = min(path[0].size(), path[1].size());	// 按最短的路径长度比较
+        TreeNode* res = NULL;
+        for (int i = 0; i < n; ++i) {
+            if (path[0][i] == path[1][i])
+                res = path[0][i];
+        }
+        return res;
+    }
 
-
+    void getPath(TreeNode* root, TreeNode* tar, vector<TreeNode*>& path) {
+        if (!root) return;
+        path.push_back(root);
+        if (root == tar) {
+            this->path.push_back(path);
+            return;
+        }
+        getPath(root->left, tar, path);
+        getPath(root->right, tar, path);
+        path.pop_back();
+    }
+```
 
 
 
