@@ -781,6 +781,17 @@ private:
     }
 ```
 
+```cpp
+    vector<int> printNumbers(int n) {
+        int limit = pow(10, n) - 1;
+        vector<int> res;
+        for (int i = 1; i <= limit; ++i) {
+            res.push_back(i);
+        }
+        return res;
+    }
+```
+
 删除链表的节点
 ====================
 [leetcode](https://leetcode-cn.com/problems/shan-chu-lian-biao-de-jie-dian-lcof/)给定单向链表的头指针和一个要删除的节点的值，定义一个函数删除该节点。
