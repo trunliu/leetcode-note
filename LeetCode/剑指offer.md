@@ -170,7 +170,11 @@
 
 ### 解题思路
 * 方法1：遍历找到空格，删除空格，插入新字符
-
+```
+1. erase(pos,n); 删除从pos开始的n个字符，比如erase(0,1)就是删除第一个字符
+2. erase(position);删除position处的一个字符(position是个string类型的迭代器)
+3. erase(first,last);删除从first到last之间的字符（first和last都是迭代器）
+```
 ```cpp
     string replaceSpace(string s) {
         for (int i = 0; s[i] != '\0'; ++i) {
