@@ -572,19 +572,19 @@ private:
         dfs(0, 0, isVis);
         return cnt;
     }
-    void dfs(int i, int j, bool** isVis) {
-        if (isVis[i][j]) return;
-        isVis[i][j] = true;
-        cnt++;
-        for (int z = 0; z < 4; ++z) {
-            int x = i + off[z][0];
-            int y = j + off[z][1];
-            if (x >= 0 && y >= 0 && x < m && y < n &&
-               (x / 10 + x % 10 + y / 10 + y % 10 <= k)) 
-                    dfs(x, y, isVis);      
-        }
-        return;
-    }
+		void dfs(int i, int j, bool** isVis) {
+			if (isVis[i][j]) return;
+			isVis[i][j] = true;
+			cnt++;
+			for (int z = 0; z < 4; ++z) {
+				int x = i + off[z][0];
+				int y = j + off[z][1];
+				if (x >= 0 && y >= 0 && x < m && y < n &&
+				   (x / 10 + x % 10 + y / 10 + y % 10 <= k)) 
+						dfs(x, y, isVis);      
+			}
+			return;
+		}
 ```
 
 剪绳子
@@ -2363,6 +2363,23 @@ class Solution:
         int left = maxDepth(root->left);
         int right = maxDepth(root->right);
         height[root] = max(height[root->left], height[root->right]) + 1;
+        return height[root];
+    }
+```
+
+```cpp
+    unordered_map<TreeNode*, int> height;
+    int maxDepth(TreeNode* root) {
+        if (height.find(root) != height.end()) {
+            return height[root];
+        }
+        if (!root) {
+            height[root] = 0;
+            return 0;
+        }
+        int left = maxDepth(root->left);
+        int right = maxDepth(root->right);
+        height[root] = max(left, right)+ 1;
         return height[root];
     }
 ```
