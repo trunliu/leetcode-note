@@ -2635,7 +2635,7 @@ class Solution:
 ```
 
 * 偷懒的方式直接使用库函数strstr()提取子串
-* `strstr(int begin, int end)` 注意end指最后一位字母的后一位索引。
+* `substr(int begin, int end)` 注意end指最后一位字母的后一位索引。
 ```cpp
     string reverseLeftWords(string s, int n) {
         return s.substr(n, s.size()) + s.substr(0, n);
