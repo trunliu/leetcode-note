@@ -170,7 +170,11 @@
 
 ### 解题思路
 * 方法1：遍历找到空格，删除空格，插入新字符
-
+```
+1. erase(pos,n); 删除从pos开始的n个字符，比如erase(0,1)就是删除第一个字符
+2. erase(position);删除position处的一个字符(position是个string类型的迭代器)
+3. erase(first,last);删除从first到last之间的字符（first和last都是迭代器）
+```
 ```cpp
     string replaceSpace(string s) {
         for (int i = 0; s[i] != '\0'; ++i) {
@@ -568,19 +572,19 @@ private:
         dfs(0, 0, isVis);
         return cnt;
     }
-    void dfs(int i, int j, bool** isVis) {
-        if (isVis[i][j]) return;
-        isVis[i][j] = true;
-        cnt++;
-        for (int z = 0; z < 4; ++z) {
-            int x = i + off[z][0];
-            int y = j + off[z][1];
-            if (x >= 0 && y >= 0 && x < m && y < n &&
-               (x / 10 + x % 10 + y / 10 + y % 10 <= k)) 
-                    dfs(x, y, isVis);      
-        }
-        return;
-    }
+		void dfs(int i, int j, bool** isVis) {
+			if (isVis[i][j]) return;
+			isVis[i][j] = true;
+			cnt++;
+			for (int z = 0; z < 4; ++z) {
+				int x = i + off[z][0];
+				int y = j + off[z][1];
+				if (x >= 0 && y >= 0 && x < m && y < n &&
+				   (x / 10 + x % 10 + y / 10 + y % 10 <= k)) 
+						dfs(x, y, isVis);      
+			}
+			return;
+		}
 ```
 
 剪绳子
@@ -775,6 +779,17 @@ private:
             cnt = cnt * 10 + 9;
         }
         for (int i = 1; i <= cnt; ++i) {
+            res.push_back(i);
+        }
+        return res;
+    }
+```
+
+```cpp
+    vector<int> printNumbers(int n) {
+        int limit = pow(10, n) - 1;
+        vector<int> res;
+        for (int i = 1; i <= limit; ++i) {
             res.push_back(i);
         }
         return res;
@@ -1880,6 +1895,26 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         return MAX;
     }
 ```
+* 滑动窗口思想,关键在于找到是什么开始移动左指针。
+* 当窗口内的和变为负数时开始移动左指针。
+```cpp
+    int maxSubArray(vector<int>& nums) {
+        int left = 0, right = 0;
+        int len = nums.size();
+        int sum = 0;
+        int MAX = INT_MIN;
+        while (right < len) {
+            while (right < len && sum >= 0) {
+                sum += nums[right];
+                MAX = max(sum, MAX);
+                right++;
+            } 
+            sum -= nums[left];
+            left++;
+        }
+        return MAX;
+    }
+```
 
 1～n整数中1出现的次数
 =======================
@@ -2293,6 +2328,22 @@ class Solution:
     }
 ```
 
+* 换个方式，用数组
+```cpp
+    vector<int> res;
+    int kthLargest(TreeNode* root, int k) {
+        dfs(root);
+        return res[res.size() - k];
+    }
+    void dfs(TreeNode* root) {
+        if (!root) return;
+        dfs(root->left);
+        res.push_back(root->val);
+        dfs(root->right);
+    }
+```
+
+
 二叉树的深度
 ===============
 [leetcode](https://leetcode-cn.com/problems/er-cha-shu-de-shen-du-lcof/)输入一棵二叉树的根节点，求该树的深度。从根节点到叶节点依次经过的节点（含根、叶节点）形成树的一条路径，最长路径的长度为树的深度。
@@ -2312,6 +2363,23 @@ class Solution:
         int left = maxDepth(root->left);
         int right = maxDepth(root->right);
         height[root] = max(height[root->left], height[root->right]) + 1;
+        return height[root];
+    }
+```
+
+```cpp
+    unordered_map<TreeNode*, int> height;
+    int maxDepth(TreeNode* root) {
+        if (height.find(root) != height.end()) {
+            return height[root];
+        }
+        if (!root) {
+            height[root] = 0;
+            return 0;
+        }
+        int left = maxDepth(root->left);
+        int right = maxDepth(root->right);
+        height[root] = max(left, right)+ 1;
         return height[root];
     }
 ```
@@ -2510,6 +2578,27 @@ class Solution:
         return res;
     }
 ```
+* 用reverse函数
+```cpp
+    string reverseWords(string s) {
+        if (s.empty()) return "";
+        vector<string> res;
+        int i = 0;
+        while (i < s.size()) {
+            string word;
+            while (i < s.size() && s[i] != ' ') 
+                word += s[i++];
+            if (!word.empty()) res.push_back(word);
+            i++;
+        }
+        if (res.empty()) return "";
+        reverse(res.begin(), res.end());
+        string ans;
+        for (auto it : res) ans += it + ' ';
+        ans.pop_back();
+        return ans;
+    }
+```
 
 左旋转字符串
 =============
@@ -2532,8 +2621,21 @@ class Solution:
         return res;
     }
 ```
+* 改进版
+```cpp
+    string reverseLeftWords(string s, int n) {
+        string res;
+        int len = s.size();
+        while (res.size() != s.size()) {
+            res += s[n % len];
+            n++;
+        }
+        return res;
+    }
+```
+
 * 偷懒的方式直接使用库函数strstr()提取子串
-* `strstr(int begin, int end)` 注意end指最后一位字母的后一位索引。
+* `substr(int begin, int end)` 注意end指最后一位字母的后一位索引。
 ```cpp
     string reverseLeftWords(string s, int n) {
         return s.substr(n, s.size()) + s.substr(0, n);
