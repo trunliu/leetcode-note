@@ -1413,7 +1413,7 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
     bool dfs(vector<int>& postorder, int left, int right) {
         if (left >= right) return true;
         int root = postorder[right];
-        int mid = 0;
+        int mid = left;
         while (postorder[mid] < root) mid++;
         // mid左为left，< root; mid右为right > root
         for (int i = mid; i < right; ++i) {
@@ -1740,7 +1740,9 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
         isVis[root] = true;
         path += s[root];
         if (path.size() == s.size()) {
+		    isVis[root] = false;
             res.push_back(path);
+            return;
         }
         for (int i = 0; i < s.size(); ++i) {
             dfs(i, path);
